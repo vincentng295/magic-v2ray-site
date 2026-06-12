@@ -1,0 +1,55 @@
+name: Clean up
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  delete-workflows:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Clean up completed workflow runs
+        env:
+          REPO: ${{ github.repository }}
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # List all completed workflow runs (first page)
+          runs=$(curl -s -H "Authorization: token $TOKEN" \
+              "https://api.github.com/repos/$REPO/actions/runs?status=completed&per_page=100" | jq '.workflow_runs[].id')
+
+          # Loop and delete each run
+          for run_id in $runs
+          do
+            echo "Deleting workflow run ID: $run_id"
+            curl -X DELETE -s -H "Authorization: token $TOKEN" \
+                "https://api.github.com/repos/$REPO/actions/runs/$run_id"
+          done
+
+          echo "All completed workflow runs deleted."
+
+
+      - name: Squash all commits into one
+        run: |
+          git config user.name "clean-bot"
+          git config user.email "clean@bot.com"
+          git checkout --orphan clean-branch
+          git add -A
+          git commit -m "Hello there!"
+          git branch -D main || true
+          git branch -m main
+
+      - name: Force push clean history
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git remote set-url origin https://x-access-token:$TOKEN@github.com/${{ github.repository }}
+          git push -f origin main
