@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Network Latency Monitor</title>
+<link rel="stylesheet" href="/style.css">
+<link rel="icon" href="/static/favicon.png">
+<style>
+:root {
+    --md-primary: #D0BCFF;
+    --md-on-primary: #381E72;
+    --md-primary-container: #4F378B;
+    --md-on-primary-container: #EADDFF;
+
+    --md-error: #F2B8B5;
+    --md-error-container: #8C1D18;
+
+    --md-success: #6DD58C;
+
+    --md-surface: #141218;
+    --md-surface-1: #1e1b23;
+    --md-surface-2: #232029;
+    --md-surface-3: #28262f;
+    --md-surface-4: #2b2830;
+    --md-on-surface: #E6E1E5;
+    --md-on-surface-variant: #CAC4D0;
+    --md-outline: #938F99;
+    --md-outline-variant: #49454F;
+
+    --md-shape-xs: 4px;
+    --md-shape-sm: 8px;
+    --md-shape-md: 12px;
+    --md-shape-lg: 16px;
+    --md-shape-full: 9999px;
+
+    --md-motion-standard: cubic-bezier(0.2, 0, 0, 1);
+
+    --md-font-display: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+    --md-font-body: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+    --md-font-mono: 'Roboto Mono', 'Courier New', monospace;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--md-surface);
+    color: var(--md-on-surface);
+    font-family: var(--md-font-body);
+    padding: 24px 16px 60px;
+}
+
+.container {
+    max-width: 720px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+h1 {
+    font-family: var(--md-font-display);
+    font-size: 22px;
+    font-weight: 800;
+    margin: 0;
+}
+
+.subtitle {
+    font-size: 13px;
+    color: var(--md-on-surface-variant);
+    margin: 2px 0 0;
+}
+
+.lang-select {
+    padding: 6px 10px;
+    border-radius: var(--md-shape-sm);
+    background: var(--md-surface-3);
+    color: var(--md-on-surface);
+    border: 1px solid var(--md-outline-variant);
+    font-family: var(--md-font-body);
+    font-size: 13px;
+    cursor: pointer;
+    outline: none;
+}
+
+.card {
+    background: var(--md-surface-1);
+    border: 1px solid var(--md-outline-variant);
+    border-radius: var(--md-shape-lg);
+    padding: 18px;
+}
+
+.card h3 {
+    margin: 0 0 14px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--md-on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+
+/* Config form */
+.config-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+.config-field { display: flex; flex-direction: column; gap: 6px; }
+.config-field.full { grid-column: 1 / -1; }
+.config-field label {
+    font-size: 12px;
+    color: var(--md-on-surface-variant);
+    font-weight: 600;
+}
+.config-field select,
+.config-field input[type="text"],
+.config-field input[type="url"] {
+    background: var(--md-surface-3);
+    border: 1px solid var(--md-outline-variant);
+    border-radius: var(--md-shape-sm);
+    color: var(--md-on-surface);
+    padding: 9px 12px;
+    font-family: var(--md-font-body);
+    font-size: 13.5px;
+    outline: none;
+    width: 100%;
+    transition: border-color .2s var(--md-motion-standard), background .2s;
+}
+.config-field select:focus,
+.config-field input:focus {
+    border-color: var(--md-primary);
+    background: var(--md-surface-4);
+}
+.config-note {
+    grid-column: 1 / -1;
+    font-size: 11.5px;
+    color: var(--md-outline);
+    line-height: 1.5;
+    margin: 0;
+}
+
+.presets {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+}
+.preset-chip {
+    padding: 5px 12px;
+    border-radius: var(--md-shape-full);
+    border: 1px solid var(--md-outline-variant);
+    background: none;
+    color: var(--md-on-surface-variant);
+    font-family: var(--md-font-body);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s var(--md-motion-standard);
+}
+.preset-chip:hover { background: rgba(255,255,255,0.06); color: var(--md-on-surface); }
+.preset-chip.active {
+    background: var(--md-primary-container);
+    border-color: var(--md-primary);
+    color: var(--md-on-primary-container);
+}
+
+/* Toolbar / toggle */
+.toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+}
+.toolbar-left { display: flex; align-items: center; gap: 10px; }
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--md-outline);
+    flex-shrink: 0;
+    transition: background .3s;
+}
+.status-dot.live {
+    background: var(--md-success);
+    box-shadow: 0 0 0 3px rgba(109, 213, 140, 0.2);
+    animation: pulse-dot 2s infinite;
+}
+@keyframes pulse-dot {
+    0%   { box-shadow: 0 0 0 0 rgba(109, 213, 140, 0.35); }
+    70%  { box-shadow: 0 0 0 6px rgba(109, 213, 140, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(109, 213, 140, 0); }
+}
+
+.current-value {
+    font-family: var(--md-font-mono);
+    font-size: 20px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+.current-value--timeout { color: var(--md-error); }
+
+.enable-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--md-on-surface-variant);
+    cursor: pointer;
+    user-select: none;
+}
+.enable-label input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 46px;
+    height: 28px;
+    background: var(--md-outline);
+    border-radius: var(--md-shape-full);
+    position: relative;
+    cursor: pointer;
+    outline: none;
+    transition: background .2s var(--md-motion-standard);
+    flex-shrink: 0;
+    border: 2px solid var(--md-outline);
+}
+.enable-label input[type="checkbox"]:checked {
+    background: var(--md-primary);
+    border-color: var(--md-primary);
+}
+.enable-label input[type="checkbox"]::before {
+    content: '';
+    position: absolute;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--md-surface);
+    top: 50%; left: 5px;
+    transform: translateY(-50%);
+    transition: left .2s var(--md-motion-standard);
+}
+.enable-label input[type="checkbox"]:checked::before { left: 21px; }
+
+/* Stats */
+.stats-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+}
+.stat {
+    flex: 1;
+    min-width: 90px;
+    background: var(--md-surface-2);
+    border: 1px solid var(--md-outline-variant);
+    border-radius: var(--md-shape-md);
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.stat-label {
+    font-size: 11px;
+    color: var(--md-on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: .4px;
+}
+.stat-value {
+    font-family: var(--md-font-mono);
+    font-size: 15px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Chart */
+.chart-wrap {
+    position: relative;
+    height: 200px;
+    background: var(--md-surface);
+    border: 1px solid var(--md-outline-variant);
+    border-radius: var(--md-shape-md);
+    overflow: hidden;
+    margin-top: 16px;
+}
+.chart-wrap svg { width: 100%; height: 100%; display: block; }
+
+.empty-state {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: var(--md-on-surface-variant);
+    font-size: 13px;
+    text-align: center;
+    padding: 24px;
+    background: var(--md-surface);
+}
+
+.legend {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--md-on-surface-variant);
+}
+.legend-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.legend-dot--green { background: var(--md-success); }
+.legend-dot--red { background: var(--md-error); }
+
+.footnote {
+    font-size: 11.5px;
+    color: var(--md-outline);
+    line-height: 1.6;
+    margin: 14px 0 0;
+}
+
+/* FAQ Styles */
+.faq-section {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+.faq-item {
+    background: var(--md-surface-2);
+    border: 1px solid var(--md-outline-variant);
+    border-radius: var(--md-shape-md);
+    padding: 12px 16px;
+}
+.faq-question {
+    font-weight: 700;
+    font-size: 13.5px;
+    color: var(--md-primary);
+    margin: 0 0 6px 0;
+}
+.faq-answer {
+    font-size: 13px;
+    color: var(--md-on-surface);
+    line-height: 1.6;
+    margin: 0;
+}
+.faq-answer strong {
+    color: var(--md-error);
+}
+
+.toast-container {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 999;
+    align-items: center;
+}
+.toast {
+    padding: 10px 18px;
+    border-radius: var(--md-shape-sm);
+    background: var(--md-surface-4);
+    border: 1px solid var(--md-outline-variant);
+    color: var(--md-on-surface);
+    font-size: 13px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.3);
+    animation: toast-in .2s var(--md-motion-standard);
+}
+.toast--success { border-color: var(--md-success); }
+.toast--error { border-color: var(--md-error); }
+@keyframes toast-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 480px) {
+    .config-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <div>
+            <h1 data-i18n="title">Network Latency Monitor</h1>
+            <p class="subtitle" data-i18n="subtitle">Measured directly from this browser via fetch()</p>
+        </div>
+        <select class="lang-select" id="lang-select" onchange="changeLanguage(this.value)">
+            <option value="en">English</option>
+            <option value="vi">Tiếng Việt</option>
+        </select>
+    </header>
+
+    <section class="card">
+        <h3 data-i18n="config_title">Probe Configuration</h3>
+        <div class="config-grid">
+            <div class="config-field full">
+                <label data-i18n="lbl_target">Target URL</label>
+                <input type="url" id="target-url" value="https://www.gstatic.com/generate_204" placeholder="https://example.com/">
+                <div class="presets" id="preset-row">
+                    <button class="preset-chip" data-url="https://www.gstatic.com/generate_204" onclick="applyPreset(this)">Google</button>
+                    <button class="preset-chip" data-url="https://cloudflare.com/cdn-cgi/trace" onclick="applyPreset(this)">Cloudflare</button>
+                    <button class="preset-chip" data-url="https://www.cloudflare.com/favicon.ico" onclick="applyPreset(this)">Cloudflare (favicon)</button>
+                    <button class="preset-chip" data-url="https://www.microsoft.com/favicon.ico" onclick="applyPreset(this)">Microsoft</button>
+                </div>
+            </div>
+
+            <div class="config-field">
+                <label data-i18n="lbl_interval">Interval</label>
+                <select id="cfg-interval">
+                    <option value="500">0.5s</option>
+                    <option value="1000" selected>1s</option>
+                    <option value="2000">2s</option>
+                    <option value="5000">5s</option>
+                </select>
+            </div>
+
+            <div class="config-field">
+                <label data-i18n="lbl_timeout">Timeout</label>
+                <select id="cfg-timeout">
+                    <option value="1000">1s</option>
+                    <option value="2000">2s</option>
+                    <option value="3000" selected>3s</option>
+                    <option value="5000">5s</option>
+                </select>
+            </div>
+
+            <div class="config-field">
+                <label data-i18n="lbl_window">Chart window</label>
+                <select id="cfg-window">
+                    <option value="30">30 samples</option>
+                    <option value="60" selected>60 samples</option>
+                    <option value="120">120 samples</option>
+                    <option value="300">300 samples</option>
+                </select>
+            </div>
+
+            <div class="config-field">
+                <label data-i18n="lbl_scale">Chart scale</label>
+                <select id="cfg-scale">
+                    <option value="auto" selected>Auto</option>
+                    <option value="300">Fixed 300ms</option>
+                    <option value="500">Fixed 500ms</option>
+                    <option value="1000">Fixed 1000ms</option>
+                    <option value="2000">Fixed 2000ms</option>
+                </select>
+            </div>
+
+        </div>
+
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <span class="status-dot" id="status-dot"></span>
+                <span class="current-value" id="current-value">— ms</span>
+            </div>
+            <label class="enable-label">
+                <input type="checkbox" id="monitor-toggle" onchange="toggleMonitor()">
+                <span data-i18n="enable_monitor">Enable monitor</span>
+            </label>
+        </div>
+    </section>
+
+    <section class="card">
+        <div class="stats-row">
+            <div class="stat">
+                <span class="stat-label" data-i18n="stat_avg">Avg</span>
+                <span class="stat-value" id="stat-avg">—</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label" data-i18n="stat_min">Min</span>
+                <span class="stat-value" id="stat-min">—</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label" data-i18n="stat_max">Max</span>
+                <span class="stat-value" id="stat-max">—</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label" data-i18n="stat_loss">Loss</span>
+                <span class="stat-value" id="stat-loss">—</span>
+            </div>
+        </div>
+
+        <div class="chart-wrap" id="chart-wrap">
+            <svg id="chart-svg" viewBox="0 0 600 200" preserveAspectRatio="none"></svg>
+            <div class="empty-state" id="empty-state">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--md-outline)"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.1-2.8-2.8L3 18"/></svg>
+                <span data-i18n="chart_empty">Enable monitor to start measuring latency.</span>
+            </div>
+        </div>
+
+        <div class="legend">
+            <span class="legend-item"><i class="legend-dot legend-dot--green"></i><span data-i18n="legend_ok">Response time (ms)</span></span>
+            <span class="legend-item"><i class="legend-dot legend-dot--red"></i><span data-i18n="legend_timeout">Timeout / unreachable</span></span>
+        </div>
+
+        <p class="footnote" data-i18n="footnote">Runs entirely client-side — no server or shell access required. Settings are saved to this browser's local storage.</p>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="card">
+        <h3 data-i18n="faq_title">Frequently Asked Questions</h3>
+        <div class="faq-section">
+            <div class="faq-item">
+                <p class="faq-question" data-i18n="faq_q1">Is this a Speedtest utility?</p>
+                <p class="faq-answer" data-i18n="faq_a1"><strong>Absolutely NOT.</strong> This tool measures Latency (response delay), not network bandwidth (Download/Upload speed). Do not confuse chart fluctuations with speed testing.</p>
+            </div>
+            <div class="faq-item">
+                <p class="faq-question" data-i18n="faq_q2">What exactly does the Latency value mean?</p>
+                <p class="faq-answer" data-i18n="faq_a2">It indicates the time (in milliseconds - ms) taken for a data packet to travel from your browser to the targeted host and back. Smaller values equal more responsive network connections.</p>
+            </div>
+            <div class="faq-item">
+                <p class="faq-question" data-i18n="faq_q3">How does this differ from standard Ping or tcping?</p>
+                <p class="faq-answer" data-i18n="faq_a3">Traditional ICMP/TCP pings operate at lower infrastructure layers. This application monitors <strong>Real Delay</strong> entirely within the browser sandbox (client-side), factoring in the actual processing latency of the client environment.</p>
+            </div>
+            <div class="faq-item">
+                <p class="faq-question" data-i18n="faq_q4">What causes the sudden high spikes on the chart?</p>
+                <p class="faq-answer" data-i18n="faq_a4">Those represent network lag spikes or temporary data congestion. This chart maps connection consistency and stability rather than total network capacity.</p>
+            </div>
+        </div>
+    </section>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('[Service Worker] Register with scope:', reg.scope))
+            .catch(err => console.error('[Service Worker] Register failed:', err));
+    });
+}
+
+
+const i18n = {
+    en: {
+        title: "Network Latency Monitor",
+        subtitle: "Measured directly from this browser via fetch()",
+        config_title: "Probe Configuration",
+        lbl_target: "Target URL",
+        lbl_interval: "Interval",
+        lbl_timeout: "Timeout",
+        lbl_window: "Chart window",
+        lbl_scale: "Chart scale",
+        enable_monitor: "Enable monitor",
+        stat_avg: "Avg",
+        stat_min: "Min",
+        stat_max: "Max",
+        stat_loss: "Loss",
+        chart_empty: "Enable monitor to start measuring latency.",
+        legend_ok: "Response time (ms)",
+        legend_timeout: "Timeout / unreachable",
+        footnote: "Runs entirely client-side — no server or shell access required. Settings are saved to this browser's local storage.",
+        timeout_label: "Timeout",
+        toast_started: "Monitor started.",
+        toast_stopped: "Monitor stopped.",
+        toast_invalid_url: "Please enter a valid http(s) URL.",
+        faq_title: "Frequently Asked Questions",
+        faq_q1: "Is this a Speedtest utility?",
+        faq_a1: "<strong>Absolutely NOT.</strong> This tool measures Latency (response delay), not network bandwidth (Download/Upload speed). Do not confuse chart fluctuations with speed testing.",
+        faq_q2: "What exactly does the Latency value mean?",
+        faq_a2: "It indicates the time (in milliseconds - ms) taken for a data packet to travel from your browser to the targeted host and back. Smaller values equal more responsive network connections.",
+        faq_q3: "How does this differ from standard Ping or tcping?",
+        faq_a3: "Traditional ICMP/TCP pings operate at lower infrastructure layers. This application monitors <strong>Real Delay</strong> entirely within the browser sandbox (client-side), factoring in the actual processing latency of the client environment.",
+        faq_q4: "What causes the sudden high spikes on the chart?",
+        faq_a4: "Those represent network lag spikes or temporary data congestion. This chart maps connection consistency and stability rather than total network capacity.",
+    },
+    vi: {
+        title: "Theo Dõi Độ Trễ Mạng",
+        subtitle: "Đo trực tiếp từ trình duyệt bằng fetch()",
+        config_title: "Cấu Hình Đo",
+        lbl_target: "URL đích",
+        lbl_interval: "Chu kỳ đo",
+        lbl_timeout: "Timeout",
+        lbl_window: "Số mẫu hiển thị",
+        lbl_scale: "Thang đo biểu đồ",
+        enable_monitor: "Bật theo dõi",
+        stat_avg: "TB",
+        stat_min: "Thấp nhất",
+        stat_max: "Cao nhất",
+        stat_loss: "Mất gói",
+        chart_empty: "Bật theo dõi để bắt đầu đo độ trễ.",
+        legend_ok: "Thời gian phản hồi (ms)",
+        legend_timeout: "Timeout / không kết nối được",
+        footnote: "Chạy hoàn toàn phía trình duyệt — không cần server hay quyền shell. Cấu hình được lưu vào local storage của trình duyệt này.",
+        timeout_label: "Timeout",
+        toast_started: "Đã bật theo dõi.",
+        toast_stopped: "Đã tắt theo dõi.",
+        toast_invalid_url: "Vui lòng nhập một URL http(s) hợp lệ.",
+        faq_title: "Câu Hỏi Thường Gặp (FAQ)",
+        faq_q1: "Trang này có phải là Speedtest (đo tốc độ mạng) không?",
+        faq_a1: "<strong>Hoàn toàn KHÔNG.</strong> Trang này dùng để đo Latency (Độ trễ/Thời gian phản hồi) chứ không phải đo băng thông (Download/Upload). Đừng nhìn biểu đồ nhảy mà lầm tưởng đây là test tốc độ.",
+        faq_q2: "Giá trị Latency hiển thị trên màn hình có ý nghĩa gì?",
+        faq_a2: "Đó là khoảng thời gian (tính bằng mili-giây - ms) để một gói dữ liệu đi từ trình duyệt của bạn đến máy chủ đích và quay trở lại. Số này càng nhỏ nghĩa là mạng phản hồi càng mượt.",
+        faq_q3: "Cơ chế này khác gì so với lệnh Ping hoặc tcping thông thường?",
+        faq_a3: "Ping truyền thống chạy ở các tầng thấp của hệ thống mạng. Còn độ trễ ở đây là <strong>Real Delay</strong> chạy hoàn toàn trên trình duyệt (client-side), phản ánh chính xác độ trễ thực tế bao gồm cả thời gian trình duyệt xử lý gói tin.",
+        faq_q4: "Tại sao đôi khi biểu đồ lại có các cột cao vọt lên?",
+        faq_a4: "Đó là hiện tượng lag spike (độ trễ tăng đột biến) do nghẽn mạng hoặc mất gói tin tạm thời. Biểu đồ này giúp bạn theo dõi độ ổn định của đường truyền chứ không phải kiểm tra mạng mạnh hay yếu.",
+    }
+};
+
+let currentLang = 'en';
+let pollTimer = null;
+let samples = [];
+
+const browserLang = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
+if (browserLang.startsWith('vi')) {
+    currentLang = 'vi';
+}
+
+const STORAGE_KEY = 'latency_monitor_config_v1';
+const STORAGE_LANG = 'preferred-lang'
+
+function t(key) {
+    return (i18n[currentLang] && i18n[currentLang][key]) || i18n.en[key] || key;
+}
+
+function applyI18n() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        el.innerHTML = t(el.getAttribute('data-i18n'));
+    });
+}
+
+function changeLanguage(lang) {
+    if (!i18n[lang]) return;
+    currentLang = lang;
+    applyI18n();
+    updateStats();
+    saveConfig();
+}
+
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+    const el = document.createElement('div');
+    el.className = `toast toast--${type}`;
+    el.textContent = message;
+    container.appendChild(el);
+    setTimeout(() => el.remove(), 3000);
+}
+
+function applyPreset(btn) {
+    document.getElementById('target-url').value = btn.dataset.url;
+    document.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    saveConfig();
+}
+
+function getConfig() {
+    return {
+        url: document.getElementById('target-url').value.trim(),
+        interval: parseInt(document.getElementById('cfg-interval').value, 10),
+        timeout: parseInt(document.getElementById('cfg-timeout').value, 10),
+        maxSamples: parseInt(document.getElementById('cfg-window').value, 10),
+        scale: document.getElementById('cfg-scale').value,
+    };
+}
+
+function saveConfig() {
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(getConfig()));
+        localStorage.setItem(STORAGE_LANG, currentLang);
+    } catch (e) { /* ignore quota / private-mode errors */ }
+}
+
+function loadConfig() {
+    try {
+        const lang = localStorage.getItem(STORAGE_LANG);
+        if (lang) currentLang = lang;
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const cfg = JSON.parse(raw);
+        if (cfg.url) document.getElementById('target-url').value = cfg.url;
+        if (cfg.interval) document.getElementById('cfg-interval').value = cfg.interval;
+        if (cfg.timeout) document.getElementById('cfg-timeout').value = cfg.timeout;
+        if (cfg.maxSamples) document.getElementById('cfg-window').value = cfg.maxSamples;
+        if (cfg.scale) document.getElementById('cfg-scale').value = cfg.scale;
+
+        document.querySelectorAll('.preset-chip').forEach(c => {
+            c.classList.toggle('active', c.dataset.url === cfg.url);
+        });
+    } catch (e) { /* ignore corrupt config */ }
+}
+
+function isValidUrl(str) {
+    try {
+        const u = new URL(str);
+        return u.protocol === 'http:' || u.protocol === 'https:';
+    } catch (e) {
+        return false;
+    }
+}
+
+function toggleMonitor() {
+    const enabled = document.getElementById('monitor-toggle').checked;
+    if (enabled) {
+        const cfg = getConfig();
+        if (!isValidUrl(cfg.url)) {
+            showToast(t('toast_invalid_url'), 'error');
+            document.getElementById('monitor-toggle').checked = false;
+            return;
+        }
+        samples = [];
+        renderChart();
+        updateStats();
+        startPolling();
+        showToast(t('toast_started'), 'success');
+    } else {
+        stopPolling();
+        document.getElementById('status-dot').classList.remove('live');
+        showToast(t('toast_stopped'), 'info');
+    }
+    saveConfig();
+}
+
+function startPolling() {
+    stopPolling();
+    pingOnce();
+    const cfg = getConfig();
+    pollTimer = setInterval(pingOnce, cfg.interval);
+}
+
+function stopPolling() {
+    if (pollTimer) {
+        clearInterval(pollTimer);
+        pollTimer = null;
+    }
+}
+
+async function pingOnce() {
+    const cfg = getConfig();
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), cfg.timeout);
+    const start = performance.now();
+    let ms = null;
+
+    try {
+        await fetch(cfg.url, {
+            mode: 'no-cors',
+            cache: 'no-store',
+            signal: controller.signal,
+        });
+        ms = Math.round(performance.now() - start);
+    } catch (e) {
+        ms = null; // aborted (timeout) or network/DNS failure
+    } finally {
+        clearTimeout(timer);
+    }
+
+    const maxSamples = cfg.maxSamples;
+    samples.push({ ms });
+    if (samples.length > maxSamples) samples.shift();
+
+    const dot = document.getElementById('status-dot');
+    dot && dot.classList.add('live');
+
+    updateStats();
+    renderChart();
+}
+
+function updateStats() {
+    const last = samples[samples.length - 1];
+    const valueEl = document.getElementById('current-value');
+    if (valueEl) {
+        const hasLast = last && last.ms !== null;
+        valueEl.textContent = hasLast ? `${last.ms} ms` : (last ? t('timeout_label') : '— ms');
+        valueEl.classList.toggle('current-value--timeout', !!last && !hasLast);
+    }
+
+    const valid = samples.filter(s => s.ms !== null).map(s => s.ms);
+    const lossPct = samples.length
+        ? Math.round(((samples.length - valid.length) / samples.length) * 100)
+        : 0;
+
+    const avgEl = document.getElementById('stat-avg');
+    const minEl = document.getElementById('stat-min');
+    const maxEl = document.getElementById('stat-max');
+    const lossEl = document.getElementById('stat-loss');
+
+    avgEl && (avgEl.textContent = valid.length ? `${Math.round(valid.reduce((a, b) => a + b, 0) / valid.length)} ms` : '—');
+    minEl && (minEl.textContent = valid.length ? `${Math.min(...valid)} ms` : '—');
+    maxEl && (maxEl.textContent = valid.length ? `${Math.max(...valid)} ms` : '—');
+    lossEl && (lossEl.textContent = samples.length ? `${lossPct}%` : '—');
+}
+
+function renderChart() {
+    const svg = document.getElementById('chart-svg');
+    const emptyState = document.getElementById('empty-state');
+    if (!svg) return;
+
+    if (samples.length === 0) {
+        svg.innerHTML = '';
+        emptyState && (emptyState.style.display = '');
+        return;
+    }
+    emptyState && (emptyState.style.display = 'none');
+
+    const cfg = getConfig();
+    const wrap = document.getElementById('chart-wrap');
+    const width = Math.max(wrap ? wrap.clientWidth : 600, 100);
+    const height = 200;
+    const pad = 10;
+    svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+
+    const n = cfg.maxSamples;
+    const slotW = (width - pad * 2) / Math.max(n - 1, 1);
+    const validValues = samples.filter(s => s.ms !== null).map(s => s.ms);
+
+    let chartMax;
+    if (cfg.scale === 'auto') {
+        const dataMax = validValues.length ? Math.max(...validValues) : 300;
+        chartMax = Math.max(300, Math.ceil((dataMax * 1.25) / 100) * 100);
+    } else {
+        chartMax = parseInt(cfg.scale, 10);
+    }
+
+    const top = pad;
+    const bottom = height - pad;
+    const usableH = bottom - top;
+    const yFor = (ms) => bottom - (Math.min(ms, chartMax) / chartMax) * usableH;
+
+    const parts = [];
+
+    [0, 0.5, 1].forEach((f) => {
+        const y = bottom - f * usableH;
+        parts.push(`<line x1="${pad}" y1="${y}" x2="${width - pad}" y2="${y}" stroke="var(--md-outline-variant)" stroke-width="1" stroke-dasharray="3,4"/>`);
+        parts.push(`<text x="${pad + 4}" y="${Math.max(y - 4, 10)}" font-size="10" fill="var(--md-on-surface-variant)" font-family="var(--md-font-mono)">${Math.round(f * chartMax)}ms</text>`);
+    });
+
+    let linePoints = [];
+    const flushLine = () => {
+        if (linePoints.length > 1) {
+            parts.push(`<polyline points="${linePoints.join(' ')}" fill="none" stroke="var(--md-success)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`);
+        } else if (linePoints.length === 1) {
+            const [x, y] = linePoints[0].split(',');
+            parts.push(`<circle cx="${x}" cy="${y}" r="2.5" fill="var(--md-success)"/>`);
+        }
+        linePoints = [];
+    };
+
+    samples.forEach((s, i) => {
+        const x = pad + i * slotW;
+        if (s.ms === null) {
+            flushLine();
+            const bandW = Math.max(slotW, 3);
+            parts.push(`<rect x="${x - bandW / 2}" y="${top}" width="${bandW}" height="${usableH}" fill="var(--md-error)" opacity="0.28"/>`);
+        } else {
+            linePoints.push(`${x},${yFor(s.ms)}`);
+        }
+    });
+    flushLine();
+
+    for (let i = samples.length - 1; i >= 0; i--) {
+        if (samples[i].ms !== null) {
+            const x = pad + i * slotW;
+            const y = yFor(samples[i].ms);
+            parts.push(`<circle cx="${x}" cy="${y}" r="3.5" fill="var(--md-success)" stroke="var(--md-surface)" stroke-width="1.5"/>`);
+            break;
+        }
+    }
+
+    svg.innerHTML = parts.join('');
+}
+
+['target-url', 'cfg-interval', 'cfg-timeout', 'cfg-window', 'cfg-scale'].forEach(id => {
+    document.getElementById(id).addEventListener('change', () => {
+        saveConfig();
+        renderChart();
+    });
+});
+
+window.addEventListener('resize', () => renderChart());
+
+loadConfig();
+document.getElementById('lang-select').value = currentLang;
+applyI18n();
+renderChart();
+</script>
+</body>
+</html>
