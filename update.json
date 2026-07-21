@@ -1,0 +1,10 @@
+{
+    "version": "v2.5",
+    "versionCode": 191,
+    "zipUrl": "https://github.com/vincentng295/Magic_V2Ray/releases/download/v2.5/magic_v2ray-v2.5-universal.apk",
+    "arch" : {
+        "arm64-v8a": "https://github.com/vincentng295/Magic_V2Ray/releases/download/v2.5/magic_v2ray-v2.5-arm64-v8a.apk",
+        "x86_64": "https://github.com/vincentng295/Magic_V2Ray/releases/download/v2.5/magic_v2ray-v2.5-x86_64.apk"
+    },
+    "changelog": "https://raw.githubusercontent.com/vincentng295/Magic_V2Ray/tags/v2.5/CHANGELOG.md"
+}
