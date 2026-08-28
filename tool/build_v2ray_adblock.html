@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V2Ray Adblock Routing Builder</title>
+<link rel="stylesheet" href="/style.css">
+<link rel="icon" href="/static/favicon.png">
+<style>
+:root {
+    --md-primary: #D0BCFF;
+    --md-on-primary: #381E72;
+    --md-primary-container: #4F378B;
+    --md-on-primary-container: #EADDFF;
+
+    --md-error: #F2B8B5;
+    --md-error-container: #8C1D18;
+
+    --md-success: #6DD58C;
+
+    --md-surface: #141218;
+    --md-surface-1: #1e1b23;
+    --md-surface-2: #232029;
+    --md-surface-3: #28262f;
+    --md-surface-4: #2b2830;
+    --md-on-surface: #E6E1E5;
+    --md-on-surface-variant: #CAC4D0;
+    --md-outline: #938F99;
+    --md-outline-variant: #49454F;
+
+    --md-shape-xs: 4px;
+    --md-shape-sm: 8px;
+    --md-shape-md: 12px;
+    --md-shape-lg: 16px;
+    --md-shape-full: 9999px;
+
+    --md-motion-standard: cubic-bezier(0.2, 0, 0, 1);
+
+    --md-font-display: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+    --md-font-body: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+    --md-font-mono: 'Roboto Mono', 'Courier New', monospace;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--md-surface);
+    color: var(--md-on-surface);
+    font-family: var(--md-font-body);
+    padding: 24px 16px 60px;
+}
+
+.container {
+    max-width: 720px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+h1 {
+    font-family: var(--md-font-display);
+    font-size: 22px;
+    font-weight: 800;
+    margin: 0;
+}
+
+.subtitle {
+    font-size: 13px;
+    color: var(--md-on-surface-variant);
+    margin: 2px 0 0;
+}
+
+.lang-select {
+    padding: 6px 10px;
+    border-radius: var(--md-shape-sm);
+    background: var(--md-surface-3);
+    color: var(--md-on-surface);
+    border: 1px solid var(--md-outline-variant);
+    font-family: var(--md-font-body);
+    font-size: 13px;
+    cursor: pointer;
+    outline: none;
+}
+
+.card {
+    background: var(--md-surface-1);
+    border: 1px solid var(--md-outline-variant);
+    border-radius: var(--md-shape-lg);
+    padding: 18px;
+}
+
+.card h3 {
+    margin: 0 0 14px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--md-on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+
+.config-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+.config-field { display: flex; flex-direction: column; gap: 6px; }
+.config-field.full { grid-column: 1 / -1; }
+.config-field label {
+    font-size: 12px;
+    color: var(--md-on-surface-variant);
+    font-weight: 600;
+}
+.config-field select,
+.config-field input[type="text"],
+.config-field input[type="url"],
+.config-field textarea {
+    background: var(--md-surface-3);
+    border: 1px solid var(--md-outline-variant);
+    border-radius: var(--md-shape-sm);
+    color: var(--md-on-surface);
+    padding: 9px 12px;
+    font-family: var(--md-font-body);
+    font-size: 13.5px;
+    outline: none;
+    width: 100%;
+    transition: border-color .2s var(--md-motion-standard), background .2s;
+}
+.config-field textarea {
+    font-family: var(--md-font-mono);
+    font-size: 12.5px;
+    resize: vertical;
+    min-height: 90px;
+}
+.config-field select:focus,
+.config-field input:focus,
+.config-field textarea:focus {
+    border-color: var(--md-primary);
+    background: var(--md-surface-4);
+}
+.config-note {
+    grid-column: 1 / -1;
+    font-size: 11.5px;
+    color: var(--md-outline);
+    line-height: 1.5;
+    margin: 0;
+}
+
+.presets {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+}
+.preset-chip {
+    padding: 5px 12px;
+    border-radius: var(--md-shape-full);
+    border: 1px solid var(--md-outline-variant);
+    background: none;
+    color: var(--md-on-surface-variant);
+    font-family: var(--md-font-body);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s var(--md-motion-standard);
+}
+.preset-chip:hover { background: rgba(255,255,255,0.06); color: var(--md-on-surface); }
+.preset-chip.active {
+    background: var(--md-primary-container);
+    border-color: var(--md-primary);
+    color: var(--md-on-primary-container);
+}
+
+.tabbar {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
+    background: var(--md-surface-2);
+    border-radius: var(--md-shape-sm);
+    padding: 4px;
+}
+.tab-btn {
+    flex: 1;
+    padding: 8px 10px;
+    border-radius: var(--md-shape-xs);
+    border: none;
+    background: none;
+    color: var(--md-on-surface-variant);
+    font-family: var(--md-font-body);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s var(--md-motion-standard);
+}
+.tab-btn.active {
+    background: var(--md-primary-container);
+    color: var(--md-on-primary-container);
+}
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+.toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+}
+.toolbar-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+.btn {
+    padding: 10px 18px;
+    border-radius: var(--md-shape-full);
+    border: 1px solid var(--md-outline-variant);
+    background: var(--md-surface-3);
+    color: var(--md-on-surface);
+    font-family: var(--md-font-body);
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .15s var(--md-motion-standard);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.btn:hover { background: var(--md-surface-4); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn-primary {
+    background: var(--md-primary);
+    border-color: var(--md-primary);
+    color: var(--md-on-primary);
+}
+.btn-primary:hover { background: #ddd0ff; }
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--md-outline);
+    flex-shrink: 0;
+}
+.status-dot.live {
+    background: var(--md-success);
+    box-shadow: 0 0 0 3px rgba(109, 213, 140, 0.2);
+}
+.status-dot.err {
+    background: var(--md-error);
+    box-shadow: 0 0 0 3px rgba(242, 184, 181, 0.2);
+}
+
+.stats-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+}
+.stat {
+    flex: 1;
+    min-width: 90px;
+    background: var(--md-surface-2);
+    border: 1px solid var(--md-outline-variant);
+    border-radius: var(--md-shape-md);
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.stat-label {
+    font-size: 11px;
+    color: var(--md-on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: .4px;
+}
+.stat-value {
+    font-family: var(--md-font-mono);
+    font-size: 15px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.json-out {
+    margin-top: 16px;
+    background: var(--md-surface);
+    border: 1px solid var(--md-outline-variant);
+    border-radius: var(--md-shape-md);
+    padding: 12px;
+    max-height: 320px;
+    overflow: auto;
+}
+.json-out pre {
+    margin: 0;
+    font-family: var(--md-font-mono);
+    font-size: 11.5px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-all;
+    color: var(--md-on-surface-variant);
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: var(--md-on-surface-variant);
+    font-size: 13px;
+    text-align: center;
+    padding: 24px;
+}
+
+.steps {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    counter-reset: step;
+}
+.step-item {
+    display: flex;
+    gap: 12px;
+    background: var(--md-surface-2);
+    border: 1px solid var(--md-outline-variant);
+    border-radius: var(--md-shape-md);
+    padding: 12px 14px;
+}
+.step-num {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--md-primary-container);
+    color: var(--md-on-primary-container);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+}
+.step-body { font-size: 13px; line-height: 1.6; }
+.step-body strong { color: var(--md-primary); }
+
+/* FAQ Styles */
+.faq-section {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+.faq-item {
+    background: var(--md-surface-2);
+    border: 1px solid var(--md-outline-variant);
+    border-radius: var(--md-shape-md);
+    padding: 12px 16px;
+}
+.faq-question {
+    font-weight: 700;
+    font-size: 13.5px;
+    color: var(--md-primary);
+    margin: 0 0 6px 0;
+}
+.faq-answer {
+    font-size: 13px;
+    color: var(--md-on-surface);
+    line-height: 1.6;
+    margin: 0;
+}
+.faq-answer strong {
+    color: var(--md-error);
+}
+
+.footnote {
+    font-size: 11.5px;
+    color: var(--md-outline);
+    line-height: 1.6;
+    margin: 14px 0 0;
+}
+
+.toast-container {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 999;
+    align-items: center;
+}
+.toast {
+    padding: 10px 18px;
+    border-radius: var(--md-shape-sm);
+    background: var(--md-surface-4);
+    border: 1px solid var(--md-outline-variant);
+    color: var(--md-on-surface);
+    font-size: 13px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.3);
+    animation: toast-in .2s var(--md-motion-standard);
+}
+.toast--success { border-color: var(--md-success); }
+.toast--error { border-color: var(--md-error); }
+@keyframes toast-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 480px) {
+    .config-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <div>
+            <h1 data-i18n="title">V2Ray Adblock Routing Builder</h1>
+            <p class="subtitle" data-i18n="subtitle">Turn a hosts file into a v2rayNG / v2rayTun routing config</p>
+        </div>
+        <select class="lang-select" id="lang-select" onchange="changeLanguage(this.value)">
+            <option value="en">English</option>
+            <option value="vi">Tiếng Việt</option>
+        </select>
+    </header>
+
+    <section class="card">
+        <h3 data-i18n="source_title">Hosts Source</h3>
+        <div class="tabbar">
+            <button class="tab-btn active" id="tab-btn-url" onclick="switchTab('url')" data-i18n="tab_url">From URL</button>
+            <button class="tab-btn" id="tab-btn-file" onclick="switchTab('file')" data-i18n="tab_file">From File</button>
+        </div>
+
+        <div class="tab-panel active" id="tab-url">
+            <div class="config-grid">
+                <div class="config-field full">
+                    <label data-i18n="lbl_hosts_url">Hosts file URL</label>
+                    <input type="url" id="hosts-url" value="https://raw.githubusercontent.com/bigdargon/hostsVN/master/hosts" placeholder="https://raw.githubusercontent.com/.../hosts">
+                    <div class="presets" id="preset-row">
+                        <button class="preset-chip active" data-url="https://raw.githubusercontent.com/bigdargon/hostsVN/master/hosts" onclick="applyPreset(this)">hostsVN</button>
+                        <button class="preset-chip" data-url="https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts" onclick="applyPreset(this)">StevenBlack</button>
+                        <button class="preset-chip" data-url="https://adaway.org/hosts.txt" onclick="applyPreset(this)">AdAway</button>
+                    </div>
+                    <p class="config-note" data-i18n="note_cors">The URL is fetched directly from your browser. If the host blocks CORS, fetching will fail — try a raw.githubusercontent.com link or download the file and use the "From File" tab instead.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-panel" id="tab-file">
+            <div class="config-grid">
+                <div class="config-field full">
+                    <label data-i18n="lbl_hosts_file">Hosts file</label>
+                    <input type="file" id="hosts-file" accept=".txt,.hosts,text/plain">
+                </div>
+                <div class="config-field full">
+                    <label data-i18n="lbl_hosts_paste">…or paste hosts content</label>
+                    <textarea id="hosts-paste" rows="6" placeholder="0.0.0.0 ads.example.com&#10;0.0.0.0 tracker.example.com"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="config-grid" style="margin-top:12px">
+            <div class="config-field">
+                <label data-i18n="lbl_outbound">Adblock outbound tag</label>
+                <input type="text" id="cfg-outbound" value="block">
+            </div>
+            <div class="config-field">
+                <label data-i18n="lbl_remarks">Rule remarks</label>
+                <input type="text" id="cfg-remarks" value="Adblock hosts">
+            </div>
+            <div class="config-field full">
+                <label class="config-note" style="display:flex;align-items:center;gap:8px;cursor:pointer">
+                    <input type="checkbox" id="cfg-baserules" checked style="width:16px;height:16px;accent-color:var(--md-primary)">
+                    <span data-i18n="lbl_baserules">Include standard base rules (block UDP/443, bypass LAN, final proxy)</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <span class="status-dot" id="status-dot"></span>
+                <span id="status-text" data-i18n="status_idle">Idle</span>
+            </div>
+            <button class="btn btn-primary" id="build-btn" onclick="buildConfig()">
+                <span data-i18n="btn_build">Build</span>
+            </button>
+        </div>
+    </section>
+
+    <section class="card">
+        <h3 data-i18n="result_title">Generated Routing JSON</h3>
+        <div class="stats-row">
+            <div class="stat">
+                <span class="stat-label" data-i18n="stat_domains">Domains</span>
+                <span class="stat-value" id="stat-domains">—</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label" data-i18n="stat_rules">Rules</span>
+                <span class="stat-value" id="stat-rules">—</span>
+            </div>
+            <div class="stat">
+                <span class="stat-label" data-i18n="stat_size">Size</span>
+                <span class="stat-value" id="stat-size">—</span>
+            </div>
+        </div>
+
+        <div class="json-out" id="json-wrap">
+            <div class="empty-state" id="empty-state">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--md-outline)"><path d="M8 3H6a2 2 0 0 0-2 2v3a2 2 0 0 1-2 2 2 2 0 0 1 2 2v3a2 2 0 0 0 2 2h2"/><path d="M16 3h2a2 2 0 0 1 2 2v3a2 2 0 0 0 2 2 2 2 0 0 0-2 2v3a2 2 0 0 1-2 2h-2"/></svg>
+                <span data-i18n="json_empty">Build a config to see the generated JSON here.</span>
+            </div>
+            <pre id="json-pre" style="display:none"></pre>
+        </div>
+
+        <div class="btn-row" style="margin-top:12px">
+            <button class="btn" id="copy-btn" onclick="copyJson()" disabled>
+                <span data-i18n="btn_copy">Copy to clipboard</span>
+            </button>
+            <button class="btn" id="download-btn" onclick="downloadJson()" disabled>
+                <span data-i18n="btn_download">Download v2ray_adblock.json</span>
+            </button>
+        </div>
+
+        <p class="footnote" data-i18n="footnote">Runs entirely client-side — hosts parsing and JSON building happen in your browser. Settings are saved to this browser's local storage.</p>
+    </section>
+
+    <section class="card">
+        <h3 data-i18n="guide_title">How to Import</h3>
+        <div class="steps">
+            <div class="step-item">
+                <span class="step-num">1</span>
+                <div class="step-body" data-i18n="guide_step1">Tap <strong>Download v2ray_adblock.json</strong> above (or Copy to clipboard).</div>
+            </div>
+            <div class="step-item">
+                <span class="step-num">2</span>
+                <div class="step-body" data-i18n="guide_step2">Open <strong>v2rayNG</strong> or <strong>v2rayTun</strong> and go to your server / profile settings, then find the <strong>Routing</strong> / <strong>Routing Settings</strong> section.</div>
+            </div>
+            <div class="step-item">
+                <span class="step-num">3</span>
+                <div class="step-body" data-i18n="guide_step3"><strong>v2rayNG:</strong> Settings → Routing Settings → tap the "+" or import icon → choose <strong>Import from file</strong> and select the downloaded JSON (or paste it if using "Import from clipboard").</div>
+            </div>
+            <div class="step-item">
+                <span class="step-num">4</span>
+                <div class="step-body" data-i18n="guide_step4"><strong>v2rayTun:</strong> Settings → Route Rule / Routing → Import → pick the downloaded file, or paste the copied JSON into the custom routing rules editor.</div>
+            </div>
+            <div class="step-item">
+                <span class="step-num">5</span>
+                <div class="step-body" data-i18n="guide_step5">Save, then make sure the outbound tag named <strong>proxy</strong> (or whatever you use) matches your actual proxy outbound, and that a <strong>block</strong> outbound exists so the adblock rule can drop matched domains.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="card">
+        <h3 data-i18n="faq_title">Frequently Asked Questions</h3>
+        <div class="faq-section">
+            <div class="faq-item">
+                <p class="faq-question" data-i18n="faq_q1">What format does this hosts file need to be?</p>
+                <p class="faq-answer" data-i18n="faq_a1">Standard hosts format: one entry per line, e.g. <strong>0.0.0.0 ads.example.com</strong>. Lines starting with # are comments, blank lines and <strong>localhost</strong> entries are ignored automatically.</p>
+            </div>
+            <div class="faq-item">
+                <p class="faq-question" data-i18n="faq_q2">Why did fetching the URL fail?</p>
+                <p class="faq-answer" data-i18n="faq_a2">Some hosting providers block cross-origin requests (CORS) from browsers. <strong>raw.githubusercontent.com</strong> links usually work; if yours doesn't, download the file yourself and use the "From File" tab.</p>
+            </div>
+            <div class="faq-item">
+                <p class="faq-question" data-i18n="faq_q3">What do the base rules do?</p>
+                <p class="faq-answer" data-i18n="faq_a3">They block outbound UDP/443 (QUIC, to force fallback and avoid Google/Chrome bypassing your proxy), send private/LAN IPs and domains direct instead of through the proxy, and route everything else to the <strong>proxy</strong> outbound before the adblock rule blocks matched domains.</p>
+            </div>
+            <div class="faq-item">
+                <p class="faq-question" data-i18n="faq_q4">Is my data uploaded anywhere?</p>
+                <p class="faq-answer" data-i18n="faq_a4"><strong>No.</strong> The hosts file is fetched or read directly by your browser, parsed locally, and the JSON is generated entirely client-side. Nothing is sent to any server run by this page.</p>
+            </div>
+        </div>
+    </section>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('[Service Worker] Register with scope:', reg.scope))
+            .catch(err => console.error('[Service Worker] Register failed:', err));
+    });
+}
+
+const i18n = {
+    en: {
+        title: "V2Ray Adblock Routing Builder",
+        subtitle: "Turn a hosts file into a v2rayNG / v2rayTun routing config",
+        source_title: "Hosts Source",
+        tab_url: "From URL",
+        tab_file: "From File",
+        lbl_hosts_url: "Hosts file URL",
+        note_cors: "The URL is fetched directly from your browser. If the host blocks CORS, fetching will fail — try a raw.githubusercontent.com link or download the file and use the \"From File\" tab instead.",
+        lbl_hosts_file: "Hosts file",
+        lbl_hosts_paste: "…or paste hosts content",
+        lbl_outbound: "Adblock outbound tag",
+        lbl_remarks: "Rule remarks",
+        lbl_baserules: "Include standard base rules (block UDP/443, bypass LAN, final proxy)",
+        status_idle: "Idle",
+        status_fetching: "Fetching hosts file…",
+        status_parsing: "Parsing domains…",
+        status_ready: "Ready",
+        status_error: "Error",
+        btn_build: "Build",
+        result_title: "Generated Routing JSON",
+        stat_domains: "Domains",
+        stat_rules: "Rules",
+        stat_size: "Size",
+        json_empty: "Build a config to see the generated JSON here.",
+        btn_copy: "Copy to clipboard",
+        btn_download: "Download v2ray_adblock.json",
+        footnote: "Runs entirely client-side — hosts parsing and JSON building happen in your browser. Settings are saved to this browser's local storage.",
+        guide_title: "How to Import",
+        guide_step1: "Tap <strong>Download v2ray_adblock.json</strong> above (or Copy to clipboard).",
+        guide_step2: "Open <strong>v2rayNG</strong> or <strong>v2rayTun</strong> and go to your server / profile settings, then find the <strong>Routing</strong> / <strong>Routing Settings</strong> section.",
+        guide_step3: "<strong>v2rayNG:</strong> Settings → Routing Settings → tap the \"+\" or import icon → choose <strong>Import from file</strong> and select the downloaded JSON (or paste it if using \"Import from clipboard\").",
+        guide_step4: "<strong>v2rayTun:</strong> Settings → Route Rule / Routing → Import → pick the downloaded file, or paste the copied JSON into the custom routing rules editor.",
+        guide_step5: "Save, then make sure the outbound tag named <strong>proxy</strong> (or whatever you use) matches your actual proxy outbound, and that a <strong>block</strong> outbound exists so the adblock rule can drop matched domains.",
+        faq_title: "Frequently Asked Questions",
+        faq_q1: "What format does this hosts file need to be?",
+        faq_a1: "Standard hosts format: one entry per line, e.g. <strong>0.0.0.0 ads.example.com</strong>. Lines starting with # are comments, blank lines and <strong>localhost</strong> entries are ignored automatically.",
+        faq_q2: "Why did fetching the URL fail?",
+        faq_a2: "Some hosting providers block cross-origin requests (CORS) from browsers. <strong>raw.githubusercontent.com</strong> links usually work; if yours doesn't, download the file yourself and use the \"From File\" tab.",
+        faq_q3: "What do the base rules do?",
+        faq_a3: "They block outbound UDP/443 (QUIC, to force fallback and avoid Google/Chrome bypassing your proxy), send private/LAN IPs and domains direct instead of through the proxy, and route everything else to the <strong>proxy</strong> outbound before the adblock rule blocks matched domains.",
+        faq_q4: "Is my data uploaded anywhere?",
+        faq_a4: "<strong>No.</strong> The hosts file is fetched or read directly by your browser, parsed locally, and the JSON is generated entirely client-side. Nothing is sent to any server run by this page.",
+        toast_built: "Config built successfully.",
+        toast_no_domains: "No valid domains found in the hosts source.",
+        toast_fetch_fail: "Failed to fetch the hosts URL (likely CORS or network error).",
+        toast_no_source: "Please provide a hosts URL, file, or pasted content.",
+        toast_copied: "Copied to clipboard.",
+        toast_copy_fail: "Could not copy — please copy manually.",
+        toast_downloaded: "File downloaded.",
+    },
+    vi: {
+        title: "Trình Tạo Cấu Hình Định Tuyến Adblock V2Ray",
+        subtitle: "Chuyển tệp hosts thành cấu hình định tuyến cho v2rayNG / v2rayTun",
+        source_title: "Nguồn Hosts",
+        tab_url: "Từ URL",
+        tab_file: "Từ Tệp",
+        lbl_hosts_url: "URL tệp hosts",
+        note_cors: "URL sẽ được tải trực tiếp từ trình duyệt của bạn. Nếu máy chủ chặn CORS, việc tải sẽ thất bại — hãy thử liên kết raw.githubusercontent.com hoặc tải tệp về máy và dùng tab \"Từ Tệp\".",
+        lbl_hosts_file: "Tệp hosts",
+        lbl_hosts_paste: "…hoặc dán nội dung hosts",
+        lbl_outbound: "Outbound tag cho adblock",
+        lbl_remarks: "Ghi chú luật",
+        lbl_baserules: "Bao gồm các luật nền tảng (chặn UDP/443, bỏ qua LAN, proxy cuối cùng)",
+        status_idle: "Chờ",
+        status_fetching: "Đang tải tệp hosts…",
+        status_parsing: "Đang phân tích domain…",
+        status_ready: "Sẵn sàng",
+        status_error: "Lỗi",
+        btn_build: "Tạo cấu hình",
+        result_title: "JSON Định Tuyến Đã Tạo",
+        stat_domains: "Domain",
+        stat_rules: "Luật",
+        stat_size: "Dung lượng",
+        json_empty: "Nhấn Tạo cấu hình để xem JSON được tạo tại đây.",
+        btn_copy: "Sao chép vào clipboard",
+        btn_download: "Tải v2ray_adblock.json",
+        footnote: "Chạy hoàn toàn phía trình duyệt — việc phân tích hosts và tạo JSON diễn ra ngay trên trình duyệt của bạn. Cấu hình được lưu vào local storage.",
+        guide_title: "Cách Nhập Vào Ứng Dụng",
+        guide_step1: "Nhấn <strong>Tải v2ray_adblock.json</strong> ở trên (hoặc Sao chép vào clipboard).",
+        guide_step2: "Mở <strong>v2rayNG</strong> hoặc <strong>v2rayTun</strong>, vào cài đặt server / profile, tìm mục <strong>Routing</strong> / <strong>Cài đặt định tuyến</strong>.",
+        guide_step3: "<strong>v2rayNG:</strong> Settings → Routing Settings → nhấn biểu tượng \"+\" hoặc import → chọn <strong>Import from file</strong> và chọn tệp JSON đã tải (hoặc dán nếu dùng \"Import from clipboard\").",
+        guide_step4: "<strong>v2rayTun:</strong> Settings → Route Rule / Routing → Import → chọn tệp đã tải, hoặc dán JSON đã sao chép vào trình soạn luật định tuyến tùy chỉnh.",
+        guide_step5: "Lưu lại, sau đó đảm bảo outbound tag tên <strong>proxy</strong> (hoặc tag bạn dùng) khớp với outbound proxy thực tế, và có một outbound <strong>block</strong> để luật adblock có thể chặn các domain khớp.",
+        faq_title: "Câu Hỏi Thường Gặp (FAQ)",
+        faq_q1: "Tệp hosts cần đúng định dạng nào?",
+        faq_a1: "Định dạng hosts chuẩn: mỗi dòng một mục, ví dụ <strong>0.0.0.0 ads.example.com</strong>. Các dòng bắt đầu bằng # là chú thích, dòng trống và mục <strong>localhost</strong> sẽ tự động bị bỏ qua.",
+        faq_q2: "Tại sao tải URL bị lỗi?",
+        faq_a2: "Một số máy chủ chặn yêu cầu cross-origin (CORS) từ trình duyệt. Liên kết <strong>raw.githubusercontent.com</strong> thường hoạt động tốt; nếu không được, hãy tải tệp về máy và dùng tab \"Từ Tệp\".",
+        faq_q3: "Các luật nền tảng dùng để làm gì?",
+        faq_a3: "Chúng chặn UDP/443 (QUIC, để buộc kết nối dùng phương án dự phòng, tránh Google/Chrome bỏ qua proxy của bạn), cho IP/domain LAN riêng tư đi thẳng thay vì qua proxy, và định tuyến phần còn lại qua outbound <strong>proxy</strong> trước khi luật adblock chặn các domain khớp.",
+        faq_q4: "Dữ liệu của tôi có bị tải lên đâu không?",
+        faq_a4: "<strong>Không.</strong> Tệp hosts được tải hoặc đọc trực tiếp bởi trình duyệt, phân tích cục bộ, và JSON được tạo hoàn toàn phía client. Không có gì được gửi đến máy chủ nào của trang này.",
+        toast_built: "Đã tạo cấu hình thành công.",
+        toast_no_domains: "Không tìm thấy domain hợp lệ nào trong nguồn hosts.",
+        toast_fetch_fail: "Không tải được URL hosts (có thể do lỗi CORS hoặc mạng).",
+        toast_no_source: "Vui lòng cung cấp URL hosts, tệp, hoặc nội dung dán vào.",
+        toast_copied: "Đã sao chép vào clipboard.",
+        toast_copy_fail: "Không thể sao chép — vui lòng sao chép thủ công.",
+        toast_downloaded: "Đã tải tệp xuống.",
+    }
+};
+
+let currentLang = 'en';
+let lastConfig = null;
+
+const browserLang = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
+if (browserLang.startsWith('vi')) {
+    currentLang = 'vi';
+}
+
+const STORAGE_KEY = 'v2ray_adblock_builder_config_v1';
+const STORAGE_LANG = 'preferred-lang';
+
+function t(key) {
+    return (i18n[currentLang] && i18n[currentLang][key]) || i18n.en[key] || key;
+}
+
+function applyI18n() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        el.innerHTML = t(el.getAttribute('data-i18n'));
+    });
+    setStatus(lastConfig ? 'ready' : 'idle');
+}
+
+function changeLanguage(lang) {
+    if (!i18n[lang]) return;
+    currentLang = lang;
+    applyI18n();
+    saveConfig();
+}
+
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+    const el = document.createElement('div');
+    el.className = `toast toast--${type}`;
+    el.textContent = message;
+    container.appendChild(el);
+    setTimeout(() => el.remove(), 3000);
+}
+
+function switchTab(name) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-btn-' + name).classList.add('active');
+    document.getElementById('tab-' + name).classList.add('active');
+    saveConfig();
+}
+
+function applyPreset(btn) {
+    document.getElementById('hosts-url').value = btn.dataset.url;
+    document.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    saveConfig();
+}
+
+function setStatus(state) {
+    const dot = document.getElementById('status-dot');
+    const text = document.getElementById('status-text');
+    if (!dot || !text) return;
+    dot.classList.remove('live', 'err');
+    if (state === 'fetching') { text.textContent = t('status_fetching'); }
+    else if (state === 'parsing') { text.textContent = t('status_parsing'); }
+    else if (state === 'ready') { dot.classList.add('live'); text.textContent = t('status_ready'); }
+    else if (state === 'error') { dot.classList.add('err'); text.textContent = t('status_error'); }
+    else { text.textContent = t('status_idle'); }
+}
+
+function getUiConfig() {
+    const activeTab = document.getElementById('tab-url').classList.contains('active') ? 'url' : 'file';
+    return {
+        tab: activeTab,
+        hostsUrl: document.getElementById('hosts-url').value.trim(),
+        hostsPaste: document.getElementById('hosts-paste').value,
+        outbound: document.getElementById('cfg-outbound').value.trim() || 'block',
+        remarks: document.getElementById('cfg-remarks').value.trim() || 'Adblock hosts',
+        baseRules: document.getElementById('cfg-baserules').checked,
+    };
+}
+
+function saveConfig() {
+    try {
+        const cfg = getUiConfig();
+        delete cfg.hostsPaste; // avoid bloating storage with large pasted lists
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg));
+        localStorage.setItem(STORAGE_LANG, currentLang);
+    } catch (e) { /* ignore quota / private-mode errors */ }
+}
+
+function loadConfig() {
+    try {
+        const lang = localStorage.getItem(STORAGE_LANG);
+        if (lang) currentLang = lang;
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const cfg = JSON.parse(raw);
+        if (cfg.hostsUrl) document.getElementById('hosts-url').value = cfg.hostsUrl;
+        if (cfg.outbound) document.getElementById('cfg-outbound').value = cfg.outbound;
+        if (cfg.remarks) document.getElementById('cfg-remarks').value = cfg.remarks;
+        if (typeof cfg.baseRules === 'boolean') document.getElementById('cfg-baserules').checked = cfg.baseRules;
+        document.querySelectorAll('.preset-chip').forEach(c => {
+            c.classList.toggle('active', c.dataset.url === cfg.hostsUrl);
+        });
+        if (cfg.tab === 'file') switchTabSilent('file');
+    } catch (e) { /* ignore corrupt config */ }
+}
+
+function switchTabSilent(name) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-btn-' + name).classList.add('active');
+    document.getElementById('tab-' + name).classList.add('active');
+}
+
+function parseHosts(text) {
+    const domains = [];
+    const seen = new Set();
+    const lines = text.split(/\r?\n/);
+    const ipRe = /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|::1|0\.0\.0\.0|127\.0\.0\.1)$/;
+    for (let line of lines) {
+        line = line.trim();
+        if (!line || line.startsWith('#') || line.startsWith('!')) continue;
+        const parts = line.split(/\s+/).filter(Boolean);
+        if (parts.length < 2) continue;
+        if (!ipRe.test(parts[0])) continue;
+        for (let i = 1; i < parts.length; i++) {
+            let d = parts[i].toLowerCase();
+            if (d.startsWith('#')) break;
+            if (!d || d === 'localhost' || d === 'localhost.localdomain' || d === 'broadcasthost') continue;
+            if (!/^[a-z0-9.-]+\.[a-z]{2,}$/i.test(d)) continue;
+            if (!seen.has(d)) {
+                seen.add(d);
+                domains.push(d);
+            }
+        }
+    }
+    return domains;
+}
+
+async function getHostsText(cfg) {
+    if (cfg.tab === 'url') {
+        if (!cfg.hostsUrl) throw new Error('no-source');
+        setStatus('fetching');
+        const res = await fetch(cfg.hostsUrl, { cache: 'no-store' });
+        if (!res.ok) throw new Error('fetch-fail');
+        return await res.text();
+    } else {
+        const fileInput = document.getElementById('hosts-file');
+        const pasted = document.getElementById('hosts-paste').value;
+        if (fileInput.files && fileInput.files[0]) {
+            return await fileInput.files[0].text();
+        } else if (pasted && pasted.trim()) {
+            return pasted;
+        }
+        throw new Error('no-source');
+    }
+}
+
+function buildRoutingJson(domains, cfg) {
+    const rules = [];
+    if (cfg.baseRules) {
+        rules.push({ enabled: true, locked: false, network: "udp", outboundTag: "block", port: "443", remarks: "阻断udp443" });
+        rules.push({ enabled: true, ip: ["geoip:private"], locked: false, outboundTag: "direct", remarks: "绕过局域网IP" });
+        rules.push({ domain: ["geosite:private"], enabled: true, locked: false, outboundTag: "direct", remarks: "绕过局域网域名" });
+        rules.push({ enabled: true, locked: false, outboundTag: "proxy", port: "0-65535", remarks: "最终代理" });
+    }
+    rules.push({ domain: domains, enabled: true, locked: false, outboundTag: cfg.outbound, remarks: cfg.remarks });
+    return rules;
+}
+
+async function buildConfig() {
+    const cfg = getUiConfig();
+    const buildBtn = document.getElementById('build-btn');
+    buildBtn.disabled = true;
+    try {
+        const text = await getHostsText(cfg);
+        setStatus('parsing');
+        const domains = parseHosts(text);
+        if (domains.length === 0) {
+            setStatus('error');
+            showToast(t('toast_no_domains'), 'error');
+            return;
+        }
+        const rules = buildRoutingJson(domains, cfg);
+        lastConfig = rules;
+        renderJson(rules, domains.length);
+        setStatus('ready');
+        showToast(t('toast_built'), 'success');
+        saveConfig();
+    } catch (e) {
+        setStatus('error');
+        if (e.message === 'no-source') showToast(t('toast_no_source'), 'error');
+        else showToast(t('toast_fetch_fail'), 'error');
+    } finally {
+        buildBtn.disabled = false;
+    }
+}
+
+function renderJson(rules, domainCount) {
+    const json = JSON.stringify(rules, null, 2);
+    document.getElementById('empty-state').style.display = 'none';
+    const pre = document.getElementById('json-pre');
+    pre.style.display = '';
+    pre.textContent = json;
+
+    document.getElementById('stat-domains').textContent = domainCount;
+    document.getElementById('stat-rules').textContent = rules.length;
+    const bytes = new Blob([json]).size;
+    document.getElementById('stat-size').textContent = bytes < 1024 ? `${bytes} B` : `${(bytes / 1024).toFixed(1)} KB`;
+
+    document.getElementById('copy-btn').disabled = false;
+    document.getElementById('download-btn').disabled = false;
+}
+
+async function copyJson() {
+    if (!lastConfig) return;
+    const json = JSON.stringify(lastConfig, null, 2);
+    try {
+        await navigator.clipboard.writeText(json);
+        showToast(t('toast_copied'), 'success');
+    } catch (e) {
+        try {
+            const ta = document.createElement('textarea');
+            ta.value = json;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            showToast(t('toast_copied'), 'success');
+        } catch (e2) {
+            showToast(t('toast_copy_fail'), 'error');
+        }
+    }
+}
+
+function downloadJson() {
+    if (!lastConfig) return;
+    const json = JSON.stringify(lastConfig, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'v2ray_adblock.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast(t('toast_downloaded'), 'success');
+}
+
+['hosts-url', 'cfg-outbound', 'cfg-remarks', 'cfg-baserules'].forEach(id => {
+    document.getElementById(id).addEventListener('change', saveConfig);
+});
+
+loadConfig();
+document.getElementById('lang-select').value = currentLang;
+applyI18n();
+</script>
+</body>
+</html>

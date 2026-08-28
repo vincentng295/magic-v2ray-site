@@ -6,6 +6,8 @@ const ASSETS_TO_CACHE = [
     '/index.html',
     '/tool/monitor_latency',
     '/tool/monitor_latency.html',
+    '/tool/build_v2ray_adblock',
+    '/tool/build_v2ray_adblock.html',
     '/style.css',
     '/static/favicon.png',
 ];
