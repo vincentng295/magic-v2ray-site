@@ -484,12 +484,6 @@ h1 {
                 <label data-i18n="lbl_remarks">Rule remarks</label>
                 <input type="text" id="cfg-remarks" value="Adblock hosts">
             </div>
-            <div class="config-field full">
-                <label class="config-note" style="display:flex;align-items:center;gap:8px;cursor:pointer">
-                    <input type="checkbox" id="cfg-baserules" checked style="width:16px;height:16px;accent-color:var(--md-primary)">
-                    <span data-i18n="lbl_baserules">Include standard base rules (block UDP/443, bypass LAN, final proxy)</span>
-                </label>
-            </div>
         </div>
 
         <p class="config-note sniff-warning" data-i18n="warn_sniff" style="grid-column:1/-1;color:var(--md-error);font-weight:700;">⚠ Required: enable "Sniffing" on your inbound/server settings, otherwise domain-based routing rules have no effect. See FAQ below for why.</p>
@@ -626,7 +620,6 @@ const i18n = {
         note_app_format: "v2rayNG expects a flat JSON array of rules. v2rayTun expects a single JSON object with a \"rules\" array, using __name__/id/type fields instead of remarks/enabled/locked.",
         lbl_outbound: "Adblock outbound tag",
         lbl_remarks: "Rule remarks",
-        lbl_baserules: "Include standard base rules (block UDP/443, bypass LAN, final proxy)",
         warn_sniff: "⚠ Required: enable \"Sniffing\" on your inbound/server settings, otherwise domain-based routing rules have no effect. See FAQ below for why.",
         status_idle: "Idle",
         status_fetching: "Fetching hosts file…",
@@ -682,7 +675,6 @@ const i18n = {
         note_app_format: "v2rayNG cần một mảng JSON các luật. v2rayTun cần một object JSON duy nhất chứa mảng \"rules\", dùng các trường __name__/id/type thay vì remarks/enabled/locked.",
         lbl_outbound: "Outbound tag cho adblock",
         lbl_remarks: "Ghi chú luật",
-        lbl_baserules: "Bao gồm các luật nền tảng (chặn UDP/443, bỏ qua LAN, proxy cuối cùng)",
         warn_sniff: "⚠ Bắt buộc: phải bật tính năng \"Sniffing\" trong cài đặt inbound/server, nếu không các luật định tuyến theo domain sẽ vô tác dụng. Xem FAQ bên dưới để biết lý do.",
         status_idle: "Chờ",
         status_fetching: "Đang tải tệp hosts…",
@@ -801,7 +793,6 @@ function getUiConfig() {
         hostsPaste: document.getElementById('hosts-paste').value,
         outbound: document.getElementById('cfg-outbound').value.trim() || 'block',
         remarks: document.getElementById('cfg-remarks').value.trim() || 'Adblock hosts',
-        baseRules: document.getElementById('cfg-baserules').checked,
     };
 }
 
@@ -825,7 +816,6 @@ function loadConfig() {
         if (cfg.hostsUrl) document.getElementById('hosts-url').value = cfg.hostsUrl;
         if (cfg.outbound) document.getElementById('cfg-outbound').value = cfg.outbound;
         if (cfg.remarks) document.getElementById('cfg-remarks').value = cfg.remarks;
-        if (typeof cfg.baseRules === 'boolean') document.getElementById('cfg-baserules').checked = cfg.baseRules;
         document.querySelectorAll('.preset-chip').forEach(c => {
             c.classList.toggle('active', c.dataset.url === cfg.hostsUrl);
         });
@@ -897,24 +887,12 @@ function uuidv4() {
 function buildRoutingJsonV2rayNG(domains, cfg) {
     const rules = [];
     rules.push({ domain: domains, enabled: true, locked: false, outboundTag: cfg.outbound, remarks: cfg.remarks });
-    if (cfg.baseRules) {
-        rules.push({ enabled: true, locked: false, network: "udp", outboundTag: "block", port: "443", remarks: "阻断udp443" });
-        rules.push({ enabled: true, ip: ["geoip:private"], locked: false, outboundTag: "direct", remarks: "绕过局域网IP" });
-        rules.push({ domain: ["geosite:private"], enabled: true, locked: false, outboundTag: "direct", remarks: "绕过局域网域名" });
-        rules.push({ enabled: true, locked: false, outboundTag: "proxy", port: "0-65535", remarks: "最终代理" });
-    }
     return rules;
 }
 
 // v2rayTun: wrapped object with domainStrategy/id/balancers/domainMatcher/name, rules use "__name__"/"id"/"type":"field"
 function buildRoutingJsonV2rayTun(domains, cfg) {
     const rules = [];
-    if (cfg.baseRules) {
-        rules.push({ __name__: "阻断udp443", id: uuidv4(), type: "field", network: "udp", port: "443", outboundTag: "block" });
-        rules.push({ __name__: "绕过局域网IP", id: uuidv4(), type: "field", ip: ["geoip:private"], outboundTag: "direct" });
-        rules.push({ __name__: "绕过局域网域名", id: uuidv4(), type: "field", domain: ["geosite:private"], outboundTag: "direct" });
-        rules.push({ __name__: "最终代理", id: uuidv4(), type: "field", port: "0-65535", outboundTag: "proxy" });
-    }
     rules.push({ __name__: cfg.remarks, id: uuidv4(), type: "field", domain: domains, outboundTag: cfg.outbound });
     return {
         domainStrategy: "AsIs",
@@ -1015,7 +993,7 @@ function downloadJson() {
     showToast(t('toast_downloaded'), 'success');
 }
 
-['hosts-url', 'cfg-app', 'cfg-outbound', 'cfg-remarks', 'cfg-baserules'].forEach(id => {
+['hosts-url', 'cfg-app', 'cfg-outbound', 'cfg-remarks'].forEach(id => {
     document.getElementById(id).addEventListener('change', saveConfig);
 });
 
