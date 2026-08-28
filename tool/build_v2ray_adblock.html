@@ -896,13 +896,13 @@ function uuidv4() {
 // v2rayNG: flat array of rule objects (enabled/locked/port as top-level fields, "remarks")
 function buildRoutingJsonV2rayNG(domains, cfg) {
     const rules = [];
+    rules.push({ domain: domains, enabled: true, locked: false, outboundTag: cfg.outbound, remarks: cfg.remarks });
     if (cfg.baseRules) {
         rules.push({ enabled: true, locked: false, network: "udp", outboundTag: "block", port: "443", remarks: "阻断udp443" });
         rules.push({ enabled: true, ip: ["geoip:private"], locked: false, outboundTag: "direct", remarks: "绕过局域网IP" });
         rules.push({ domain: ["geosite:private"], enabled: true, locked: false, outboundTag: "direct", remarks: "绕过局域网域名" });
         rules.push({ enabled: true, locked: false, outboundTag: "proxy", port: "0-65535", remarks: "最终代理" });
     }
-    rules.push({ domain: domains, enabled: true, locked: false, outboundTag: cfg.outbound, remarks: cfg.remarks });
     return rules;
 }
 
