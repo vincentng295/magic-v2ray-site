@@ -492,6 +492,8 @@ h1 {
             </div>
         </div>
 
+        <p class="config-note sniff-warning" data-i18n="warn_sniff" style="grid-column:1/-1;color:var(--md-error);font-weight:700;">⚠ Required: enable "Sniffing" on your inbound/server settings, otherwise domain-based routing rules have no effect. See FAQ below for why.</p>
+
         <div class="toolbar">
             <div class="toolbar-left">
                 <span class="status-dot" id="status-dot"></span>
@@ -553,14 +555,18 @@ h1 {
             </div>
             <div class="step-item">
                 <span class="step-num">3</span>
-                <div class="step-body" data-i18n="guide_step3"><strong>v2rayNG:</strong> Settings → Routing Settings → tap the "+" or import icon → choose <strong>Import from file</strong> and select the downloaded JSON (or paste it if using "Import from clipboard").</div>
+                <div class="step-body" data-i18n="guide_step_sniff"><strong>Enable Sniffing first:</strong> in v2rayNG go to the server's edit screen → <strong>Sniffing</strong> toggle → on (destination override for HTTP/TLS); in v2rayTun go to Settings → <strong>Sniff</strong> / Sniffing → enable it. Domain-based rules will not match anything without this.</div>
             </div>
             <div class="step-item">
                 <span class="step-num">4</span>
-                <div class="step-body" data-i18n="guide_step4"><strong>v2rayTun:</strong> Settings → Route Rule / Routing → Import → pick the downloaded file, or paste the copied JSON into the custom routing rules editor.</div>
+                <div class="step-body" data-i18n="guide_step3"><strong>v2rayNG:</strong> Settings → Routing Settings → tap the "+" or import icon → choose <strong>Import from file</strong> and select the downloaded JSON (or paste it if using "Import from clipboard").</div>
             </div>
             <div class="step-item">
                 <span class="step-num">5</span>
+                <div class="step-body" data-i18n="guide_step4"><strong>v2rayTun:</strong> Settings → Route Rule / Routing → Import → pick the downloaded file, or paste the copied JSON into the custom routing rules editor.</div>
+            </div>
+            <div class="step-item">
+                <span class="step-num">6</span>
                 <div class="step-body" data-i18n="guide_step5">Save, then make sure the outbound tag named <strong>proxy</strong> (or whatever you use) matches your actual proxy outbound, and that a <strong>block</strong> outbound exists so the adblock rule can drop matched domains.</div>
             </div>
         </div>
@@ -585,6 +591,10 @@ h1 {
             <div class="faq-item">
                 <p class="faq-question" data-i18n="faq_q4">Is my data uploaded anywhere?</p>
                 <p class="faq-answer" data-i18n="faq_a4"><strong>No.</strong> The hosts file is fetched or read directly by your browser, parsed locally, and the JSON is generated entirely client-side. Nothing is sent to any server run by this page.</p>
+            </div>
+            <div class="faq-item">
+                <p class="faq-question" data-i18n="faq_q5">Why do I need to enable "Sniffing"?</p>
+                <p class="faq-answer" data-i18n="faq_a5">Domain-matching rules (like this adblock ruleset) can only match a <strong>domain</strong>. But most apps on your phone connect using a raw destination IP, not a hostname — the DNS lookup happened earlier and V2Ray/Xray only sees an IP:port. <strong>Sniffing</strong> makes the core peek at the TLS SNI or HTTP Host header of the connection to recover the real domain before routing decides where to send it. Without Sniffing enabled, the core has no domain to compare against your rules, so every "domain" rule (including this adblock list and any geosite rules) is silently skipped and traffic falls through to whatever rule matches by IP/port instead — meaning ads won't be blocked and the rule set effectively does nothing.</p>
             </div>
         </div>
     </section>
@@ -617,6 +627,7 @@ const i18n = {
         lbl_outbound: "Adblock outbound tag",
         lbl_remarks: "Rule remarks",
         lbl_baserules: "Include standard base rules (block UDP/443, bypass LAN, final proxy)",
+        warn_sniff: "⚠ Required: enable \"Sniffing\" on your inbound/server settings, otherwise domain-based routing rules have no effect. See FAQ below for why.",
         status_idle: "Idle",
         status_fetching: "Fetching hosts file…",
         status_parsing: "Parsing domains…",
@@ -634,6 +645,7 @@ const i18n = {
         guide_title: "How to Import",
         guide_step1: "Tap <strong>Download v2ray_adblock.json</strong> above (or Copy to clipboard).",
         guide_step2: "Open <strong>v2rayNG</strong> or <strong>v2rayTun</strong> and go to your server / profile settings, then find the <strong>Routing</strong> / <strong>Routing Settings</strong> section.",
+        guide_step_sniff: "<strong>Enable Sniffing first:</strong> in v2rayNG go to the server's edit screen → <strong>Sniffing</strong> toggle → on (destination override for HTTP/TLS); in v2rayTun go to Settings → <strong>Sniff</strong> / Sniffing → enable it. Domain-based rules will not match anything without this.",
         guide_step3: "<strong>v2rayNG:</strong> Settings → Routing Settings → tap the \"+\" or import icon → choose <strong>Import from file</strong> and select the downloaded JSON (or paste it if using \"Import from clipboard\").",
         guide_step4: "<strong>v2rayTun:</strong> Settings → Route Rule / Routing → Import → pick the downloaded file, or paste the copied JSON into the custom routing rules editor.",
         guide_step5: "Save, then make sure the outbound tag named <strong>proxy</strong> (or whatever you use) matches your actual proxy outbound, and that a <strong>block</strong> outbound exists so the adblock rule can drop matched domains.",
@@ -646,6 +658,8 @@ const i18n = {
         faq_a3: "They block outbound UDP/443 (QUIC, to force fallback and avoid Google/Chrome bypassing your proxy), send private/LAN IPs and domains direct instead of through the proxy, and route everything else to the <strong>proxy</strong> outbound before the adblock rule blocks matched domains.",
         faq_q4: "Is my data uploaded anywhere?",
         faq_a4: "<strong>No.</strong> The hosts file is fetched or read directly by your browser, parsed locally, and the JSON is generated entirely client-side. Nothing is sent to any server run by this page.",
+        faq_q5: "Why do I need to enable \"Sniffing\"?",
+        faq_a5: "Domain-matching rules (like this adblock ruleset) can only match a <strong>domain</strong>. But most apps on your phone connect using a raw destination IP, not a hostname — the DNS lookup happened earlier and V2Ray/Xray only sees an IP:port. <strong>Sniffing</strong> makes the core peek at the TLS SNI or HTTP Host header of the connection to recover the real domain before routing decides where to send it. Without Sniffing enabled, the core has no domain to compare against your rules, so every \"domain\" rule (including this adblock list and any geosite rules) is silently skipped and traffic falls through to whatever rule matches by IP/port instead — meaning ads won't be blocked and the rule set effectively does nothing.",
         toast_built: "Config built successfully.",
         toast_no_domains: "No valid domains found in the hosts source.",
         toast_fetch_fail: "Failed to fetch the hosts URL (likely CORS or network error).",
@@ -669,6 +683,7 @@ const i18n = {
         lbl_outbound: "Outbound tag cho adblock",
         lbl_remarks: "Ghi chú luật",
         lbl_baserules: "Bao gồm các luật nền tảng (chặn UDP/443, bỏ qua LAN, proxy cuối cùng)",
+        warn_sniff: "⚠ Bắt buộc: phải bật tính năng \"Sniffing\" trong cài đặt inbound/server, nếu không các luật định tuyến theo domain sẽ vô tác dụng. Xem FAQ bên dưới để biết lý do.",
         status_idle: "Chờ",
         status_fetching: "Đang tải tệp hosts…",
         status_parsing: "Đang phân tích domain…",
@@ -686,6 +701,7 @@ const i18n = {
         guide_title: "Cách Nhập Vào Ứng Dụng",
         guide_step1: "Nhấn <strong>Tải v2ray_adblock.json</strong> ở trên (hoặc Sao chép vào clipboard).",
         guide_step2: "Mở <strong>v2rayNG</strong> hoặc <strong>v2rayTun</strong>, vào cài đặt server / profile, tìm mục <strong>Routing</strong> / <strong>Cài đặt định tuyến</strong>.",
+        guide_step_sniff: "<strong>Bật Sniffing trước tiên:</strong> trong v2rayNG vào màn hình sửa server → bật công tắc <strong>Sniffing</strong> (destination override cho HTTP/TLS); trong v2rayTun vào Settings → bật <strong>Sniff</strong> / Sniffing. Nếu không bật, các luật theo domain sẽ không khớp được gì cả.",
         guide_step3: "<strong>v2rayNG:</strong> Settings → Routing Settings → nhấn biểu tượng \"+\" hoặc import → chọn <strong>Import from file</strong> và chọn tệp JSON đã tải (hoặc dán nếu dùng \"Import from clipboard\").",
         guide_step4: "<strong>v2rayTun:</strong> Settings → Route Rule / Routing → Import → chọn tệp đã tải, hoặc dán JSON đã sao chép vào trình soạn luật định tuyến tùy chỉnh.",
         guide_step5: "Lưu lại, sau đó đảm bảo outbound tag tên <strong>proxy</strong> (hoặc tag bạn dùng) khớp với outbound proxy thực tế, và có một outbound <strong>block</strong> để luật adblock có thể chặn các domain khớp.",
@@ -698,6 +714,8 @@ const i18n = {
         faq_a3: "Chúng chặn UDP/443 (QUIC, để buộc kết nối dùng phương án dự phòng, tránh Google/Chrome bỏ qua proxy của bạn), cho IP/domain LAN riêng tư đi thẳng thay vì qua proxy, và định tuyến phần còn lại qua outbound <strong>proxy</strong> trước khi luật adblock chặn các domain khớp.",
         faq_q4: "Dữ liệu của tôi có bị tải lên đâu không?",
         faq_a4: "<strong>Không.</strong> Tệp hosts được tải hoặc đọc trực tiếp bởi trình duyệt, phân tích cục bộ, và JSON được tạo hoàn toàn phía client. Không có gì được gửi đến máy chủ nào của trang này.",
+        faq_q5: "Tại sao phải bật \"Sniffing\"?",
+        faq_a5: "Các luật khớp theo domain (như danh sách adblock này) chỉ có thể khớp một <strong>tên miền</strong>. Nhưng hầu hết ứng dụng trên điện thoại kết nối bằng địa chỉ IP đích thô, không phải hostname — việc tra DNS đã xảy ra từ trước, nên V2Ray/Xray chỉ nhìn thấy IP:port. <strong>Sniffing</strong> giúp core \"nhìn trộm\" SNI của TLS hoặc Host header của HTTP trong kết nối để lấy lại tên miền thật trước khi quyết định định tuyến. Nếu không bật Sniffing, core không có domain nào để so khớp với luật của bạn, nên mọi luật \"domain\" (bao gồm danh sách adblock này và các luật geosite) sẽ bị bỏ qua âm thầm, traffic sẽ rơi vào luật khớp theo IP/port thay thế — nghĩa là quảng cáo sẽ không bị chặn và bộ luật này coi như vô dụng.",
         toast_built: "Đã tạo cấu hình thành công.",
         toast_no_domains: "Không tìm thấy domain hợp lệ nào trong nguồn hosts.",
         toast_fetch_fail: "Không tải được URL hosts (có thể do lỗi CORS hoặc mạng).",
