@@ -468,6 +468,14 @@ h1 {
         </div>
 
         <div class="config-grid" style="margin-top:12px">
+            <div class="config-field full">
+                <label data-i18n="lbl_app">Target app</label>
+                <select id="cfg-app">
+                    <option value="v2rayng">v2rayNG (array format)</option>
+                    <option value="v2raytun">v2rayTun (object format)</option>
+                </select>
+                <p class="config-note" data-i18n="note_app_format">v2rayNG expects a flat JSON array of rules. v2rayTun expects a single JSON object with a "rules" array, using __name__/id/type fields instead of remarks/enabled/locked.</p>
+            </div>
             <div class="config-field">
                 <label data-i18n="lbl_outbound">Adblock outbound tag</label>
                 <input type="text" id="cfg-outbound" value="block">
@@ -604,6 +612,8 @@ const i18n = {
         note_cors: "The URL is fetched directly from your browser. If the host blocks CORS, fetching will fail — try a raw.githubusercontent.com link or download the file and use the \"From File\" tab instead.",
         lbl_hosts_file: "Hosts file",
         lbl_hosts_paste: "…or paste hosts content",
+        lbl_app: "Target app",
+        note_app_format: "v2rayNG expects a flat JSON array of rules. v2rayTun expects a single JSON object with a \"rules\" array, using __name__/id/type fields instead of remarks/enabled/locked.",
         lbl_outbound: "Adblock outbound tag",
         lbl_remarks: "Rule remarks",
         lbl_baserules: "Include standard base rules (block UDP/443, bypass LAN, final proxy)",
@@ -654,6 +664,8 @@ const i18n = {
         note_cors: "URL sẽ được tải trực tiếp từ trình duyệt của bạn. Nếu máy chủ chặn CORS, việc tải sẽ thất bại — hãy thử liên kết raw.githubusercontent.com hoặc tải tệp về máy và dùng tab \"Từ Tệp\".",
         lbl_hosts_file: "Tệp hosts",
         lbl_hosts_paste: "…hoặc dán nội dung hosts",
+        lbl_app: "Ứng dụng đích",
+        note_app_format: "v2rayNG cần một mảng JSON các luật. v2rayTun cần một object JSON duy nhất chứa mảng \"rules\", dùng các trường __name__/id/type thay vì remarks/enabled/locked.",
         lbl_outbound: "Outbound tag cho adblock",
         lbl_remarks: "Ghi chú luật",
         lbl_baserules: "Bao gồm các luật nền tảng (chặn UDP/443, bỏ qua LAN, proxy cuối cùng)",
@@ -766,6 +778,7 @@ function getUiConfig() {
     const activeTab = document.getElementById('tab-url').classList.contains('active') ? 'url' : 'file';
     return {
         tab: activeTab,
+        app: document.getElementById('cfg-app').value || 'v2rayng',
         hostsUrl: document.getElementById('hosts-url').value.trim(),
         hostsPaste: document.getElementById('hosts-paste').value,
         outbound: document.getElementById('cfg-outbound').value.trim() || 'block',
@@ -790,6 +803,7 @@ function loadConfig() {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (!raw) return;
         const cfg = JSON.parse(raw);
+        if (cfg.app) document.getElementById('cfg-app').value = cfg.app;
         if (cfg.hostsUrl) document.getElementById('hosts-url').value = cfg.hostsUrl;
         if (cfg.outbound) document.getElementById('cfg-outbound').value = cfg.outbound;
         if (cfg.remarks) document.getElementById('cfg-remarks').value = cfg.remarks;
@@ -852,7 +866,17 @@ async function getHostsText(cfg) {
     }
 }
 
-function buildRoutingJson(domains, cfg) {
+function uuidv4() {
+    if (crypto && crypto.randomUUID) return crypto.randomUUID();
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
+
+// v2rayNG: flat array of rule objects (enabled/locked/port as top-level fields, "remarks")
+function buildRoutingJsonV2rayNG(domains, cfg) {
     const rules = [];
     if (cfg.baseRules) {
         rules.push({ enabled: true, locked: false, network: "udp", outboundTag: "block", port: "443", remarks: "阻断udp443" });
@@ -862,6 +886,32 @@ function buildRoutingJson(domains, cfg) {
     }
     rules.push({ domain: domains, enabled: true, locked: false, outboundTag: cfg.outbound, remarks: cfg.remarks });
     return rules;
+}
+
+// v2rayTun: wrapped object with domainStrategy/id/balancers/domainMatcher/name, rules use "__name__"/"id"/"type":"field"
+function buildRoutingJsonV2rayTun(domains, cfg) {
+    const rules = [];
+    if (cfg.baseRules) {
+        rules.push({ __name__: "阻断udp443", id: uuidv4(), type: "field", network: "udp", port: "443", outboundTag: "block" });
+        rules.push({ __name__: "绕过局域网IP", id: uuidv4(), type: "field", ip: ["geoip:private"], outboundTag: "direct" });
+        rules.push({ __name__: "绕过局域网域名", id: uuidv4(), type: "field", domain: ["geosite:private"], outboundTag: "direct" });
+        rules.push({ __name__: "最终代理", id: uuidv4(), type: "field", port: "0-65535", outboundTag: "proxy" });
+    }
+    rules.push({ __name__: cfg.remarks, id: uuidv4(), type: "field", domain: domains, outboundTag: cfg.outbound });
+    return {
+        domainStrategy: "AsIs",
+        id: uuidv4(),
+        balancers: [],
+        domainMatcher: "hybrid",
+        name: cfg.remarks || "Ruleset",
+        rules: rules,
+    };
+}
+
+function buildRoutingJson(domains, cfg) {
+    return cfg.app === 'v2raytun'
+        ? buildRoutingJsonV2rayTun(domains, cfg)
+        : buildRoutingJsonV2rayNG(domains, cfg);
 }
 
 async function buildConfig() {
@@ -899,8 +949,9 @@ function renderJson(rules, domainCount) {
     pre.style.display = '';
     pre.textContent = json;
 
+    const ruleCount = Array.isArray(rules) ? rules.length : (rules.rules ? rules.rules.length : 0);
     document.getElementById('stat-domains').textContent = domainCount;
-    document.getElementById('stat-rules').textContent = rules.length;
+    document.getElementById('stat-rules').textContent = ruleCount;
     const bytes = new Blob([json]).size;
     document.getElementById('stat-size').textContent = bytes < 1024 ? `${bytes} B` : `${(bytes / 1024).toFixed(1)} KB`;
 
@@ -946,7 +997,7 @@ function downloadJson() {
     showToast(t('toast_downloaded'), 'success');
 }
 
-['hosts-url', 'cfg-outbound', 'cfg-remarks', 'cfg-baserules'].forEach(id => {
+['hosts-url', 'cfg-app', 'cfg-outbound', 'cfg-remarks', 'cfg-baserules'].forEach(id => {
     document.getElementById(id).addEventListener('change', saveConfig);
 });
 
