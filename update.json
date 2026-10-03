@@ -1,6 +1,6 @@
 {
-    "version": "v1.19.1",
-    "versionCode": 162,
-    "zipUrl": "https://github.com/vincentng295/Magic_V2Ray/releases/download/v1.19.1/magic_v2ray-v1.19.1___Xray-core@v26.9.9-universal.zip",
-    "changelog": "https://raw.githubusercontent.com/vincentng295/Magic_V2Ray/tags/v1.19.1/CHANGELOG.md"
+    "version": "v1.20",
+    "versionCode": 163,
+    "zipUrl": "https://github.com/vincentng295/Magic_V2Ray/releases/download/v1.20/magic_v2ray-v1.20___Xray-core@v26.9.30-universal.zip",
+    "changelog": "https://raw.githubusercontent.com/vincentng295/Magic_V2Ray/tags/v1.20/CHANGELOG.md"
 }
