@@ -110,3 +110,22 @@ footer{padding:36px 0 40px;border-top:1px solid var(--border);margin-top:56px}
 /* LANG HIDE */
 .en,.vi{transition:opacity .15s}
 [data-lang="vi"] .en,[data-lang="en"] .vi{display:none}
+
+/* MODES + INSTALL TRACKS (added for the app rewrite) */
+.mode-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.mode-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px 22px;transition:border-color .2s}
+.mode-card:hover{border-color:var(--border2)}
+.mode-card.root{border-top:2px solid var(--violet)}
+.mode-card.nonroot{border-top:2px solid var(--emerald)}
+.mode-tag{display:inline-block;font-size:11px;font-weight:700;font-family:var(--mono);letter-spacing:.4px;padding:3px 10px;border-radius:100px;margin-bottom:12px}
+.mode-card.root .mode-tag{background:rgba(124,58,237,.15);color:var(--violet-l)}
+.mode-card.nonroot .mode-tag{background:rgba(16,185,129,.12);color:var(--emerald-l)}
+.mode-title{font-size:16px;font-weight:700;margin-bottom:8px}
+.mode-list{list-style:none;margin-top:10px}
+.mode-list li{font-size:13px;color:var(--txt2);line-height:1.6;padding-left:18px;position:relative;margin-bottom:6px}
+.mode-list li:before{content:"";position:absolute;left:0;top:9px;width:6px;height:6px;border-radius:50%;background:var(--violet-l)}
+.mode-card.nonroot .mode-list li:before{background:var(--emerald-l)}
+.install-track{margin-bottom:16px}
+.install-track-title{font-size:15px;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:10px}
+.install-note{font-size:12px;color:var(--txt3);margin-top:14px;line-height:1.6}
+.install-note code,.step-txt code{font-size:12px;font-family:var(--mono);color:var(--violet-l)}

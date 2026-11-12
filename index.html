@@ -1,8 +1,10 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Magic V2Ray - Magisk/KernelSU/APatch module</title>
+        <title>Magic V2Ray - Proxy app for Android (Root &amp; Non-Root)</title>
+        <meta name="description" content="Magic V2Ray is an Android app that routes your traffic through Xray-core. Works without root through VpnService, or as a kernel-level daemon on rooted devices.">
         <link rel="stylesheet" href="style.css">
         <link rel="icon" href="static/favicon.png">
     </head>
@@ -32,15 +34,15 @@
                 <div class="hero">
                     <div class="hero-eyebrow">
                         <span class="dot-live"></span>
-                        <span class="en">Magisk / KernelSU / APatch Module</span>
-                        <span class="vi">Module cho Magisk / KernelSU / APatch</span>
+                        <span class="en">Android app · Root &amp; Non-Root</span>
+                        <span class="vi">Ứng dụng Android · Root &amp; Non-Root</span>
                     </div>
                     <h1>
                         <span class="en">The <span class="gradient-text">Magic</span> Proxy<br>for Android</span>
                         <span class="vi">Proxy <span class="gradient-text">thần kỳ</span><br>cho Android</span>
                     </h1>
-                    <p class="hero-sub en">A Magisk/KernelSU/APatch module that routes all your apps through a proxy — system-wide, always-on, with a simple web UI to manage your servers.</p>
-                    <p class="hero-sub vi">Module Magisk/KernelSU/APatch giúp toàn bộ ứng dụng trên máy đi qua proxy — luôn hoạt động ngầm, không bị tắt, quản lý dễ dàng qua giao diện web.</p>
+                    <p class="hero-sub en">An Android app that routes your apps through Xray-core. Install it like any other app and run it without root, or unlock the kernel-level daemon if your device is rooted.</p>
+                    <p class="hero-sub vi">Ứng dụng Android đưa ứng dụng trên máy đi qua Xray-core. Cài như app bình thường và chạy không cần root, hoặc mở khóa daemon cấp nhân nếu máy đã root.</p>
                     <div class="cta-row">
                         <a href="https://github.com/vincentng295/magic_v2ray" class="btn-primary">
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
@@ -52,7 +54,7 @@
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
                             </svg>
-                            <span class="en">Download</span><span class="vi">Tải xuống</span>
+                            <span class="en">Download APK</span><span class="vi">Tải APK</span>
                         </a>
                         <button class="btn-ghost" onclick="document.getElementById('install').scrollIntoView({behavior:'smooth'})">
                             <span class="en">Installation guide</span><span class="vi">Hướng dẫn cài đặt</span>
@@ -103,19 +105,64 @@
                 <!-- STATS -->
                 <div class="stats">
                     <div class="stat">
-                        <div class="stat-num">8<span>+</span></div>
+                        <div class="stat-num">8</div>
                         <div class="stat-lbl en">Protocols supported</div>
                         <div class="stat-lbl vi">Giao thức hỗ trợ</div>
                     </div>
                     <div class="stat">
-                        <div class="stat-num">7<span>+</span></div>
-                        <div class="stat-lbl en">Connection types</div>
-                        <div class="stat-lbl vi">Kiểu kết nối hỗ trợ</div>
+                        <div class="stat-num">2</div>
+                        <div class="stat-lbl en">Modes: Root and Non-Root</div>
+                        <div class="stat-lbl vi">Chế độ: Root và Non-Root</div>
                     </div>
                     <div class="stat">
                         <div class="stat-num">EN<span>/</span>VI</div>
-                        <div class="stat-lbl en">Bilingual web UI</div>
-                        <div class="stat-lbl vi">Giao diện song ngữ</div>
+                        <div class="stat-lbl en">Bilingual app UI</div>
+                        <div class="stat-lbl vi">Giao diện ứng dụng song ngữ</div>
+                    </div>
+                </div>
+                <!-- MODES -->
+                <div class="section">
+                    <div class="section-label en">Operation Modes</div>
+                    <div class="section-label vi">Chế độ hoạt động</div>
+                    <h2 class="section-title en">Pick the mode your device allows</h2>
+                    <h2 class="section-title vi">Chọn chế độ phù hợp với thiết bị của bạn</h2>
+                    <p class="section-sub en">Since v2.0 root is optional. Both modes share the same server list, routing and Xray core.</p>
+                    <p class="section-sub vi">Từ v2.0, root không còn bắt buộc. Hai chế độ dùng chung danh sách máy chủ, định tuyến và nhân Xray.</p>
+                    <div class="mode-grid">
+                        <div class="mode-card nonroot">
+                            <span class="mode-tag en">NON-ROOT · v2.0+</span>
+                            <span class="mode-tag vi">NON-ROOT · v2.0+</span>
+                            <div class="mode-title en">VpnService mode</div>
+                            <div class="mode-title vi">Chế độ VpnService</div>
+                            <ul class="mode-list en">
+                                <li>Standard user-space proxying through Android's VpnService</li>
+                                <li>No root and no custom kernel modules needed</li>
+                                <li>Hotspot / USB tethering sharing through Shizuku on Android 13+</li>
+                            </ul>
+                            <ul class="mode-list vi">
+                                <li>Proxy ở không gian người dùng qua VpnService chuẩn của Android</li>
+                                <li>Không cần root hay module nhân tùy chỉnh</li>
+                                <li>Chia sẻ hotspot / USB tethering qua Shizuku trên Android 13+</li>
+                            </ul>
+                        </div>
+                        <div class="mode-card root">
+                            <span class="mode-tag en">ROOT · Magisk / KernelSU / APatch</span>
+                            <span class="mode-tag vi">ROOT · Magisk / KernelSU / APatch</span>
+                            <div class="mode-title en">Daemon engine</div>
+                            <div class="mode-title vi">Daemon nền</div>
+                            <ul class="mode-list en">
+                                <li>Runs as a root system daemon that the low-memory killer does not touch</li>
+                                <li>Netfilter-level routing, including system UIDs that VPNs miss</li>
+                                <li>No VPN slot used, so no key icon and no conflict with per-app VPNs</li>
+                                <li>Native hotspot / tethering through PREROUTING, plus live updates from version 176 without a reboot</li>
+                            </ul>
+                            <ul class="mode-list vi">
+                                <li>Chạy như daemon hệ thống quyền root, trình dọn bộ nhớ không đụng tới</li>
+                                <li>Định tuyến ở tầng Netfilter, gồm cả UID hệ thống mà VPN không với tới</li>
+                                <li>Không chiếm slot VPN, không có biểu tượng chìa khóa, không xung đột với VPN theo ứng dụng</li>
+                                <li>Hotspot / tethering gốc qua PREROUTING, cập nhật trực tiếp từ phiên bản 176 mà không cần khởi động lại</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
                 <!-- FEATURES -->
@@ -124,81 +171,64 @@
                     <div class="section-label vi">Tính năng chính</div>
                     <h2 class="section-title en">Everything you need, nothing you don't</h2>
                     <h2 class="section-title vi">Đủ tính năng, không rườm rà</h2>
-                    <p class="section-sub en">Works silently in the background, covering every app on your device. No babysitting needed.</p>
-                    <p class="section-sub vi">Chạy ngầm và tự động bảo vệ toàn bộ ứng dụng. Cài xong là xài, không cần chỉnh tay.</p>
+                    <p class="section-sub en">One app to manage your servers, route your traffic and share the connection.</p>
+                    <p class="section-sub vi">Một ứng dụng để quản lý máy chủ, định tuyến lưu lượng và chia sẻ kết nối.</p>
                     <div class="feat-grid">
                         <div class="feat-card">
-                            <div class="feat-icon v">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A78BFA" stroke-width="2">
-                                    <circle cx="12" cy="12" r="3"/>
-                                    <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
-                                </svg>
-                            </div>
-                            <div class="feat-title en">System-Wide Coverage</div>
+                            <div class="feat-icon v"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A78BFA" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div>
+                            <div class="feat-title en">Two modes, one app</div>
+                            <div class="feat-title vi">Hai chế độ, một ứng dụng</div>
+                            <div class="feat-desc en">Run in Root mode for a kernel-level daemon, or in Non-Root mode through Android's VpnService. Same UI and same Xray core either way.</div>
+                            <div class="feat-desc vi">Chạy Chế độ Root với daemon cấp nhân, hoặc Chế độ Non-Root qua VpnService của Android. Cùng giao diện, cùng nhân Xray.</div>
+                        </div>
+                        <div class="feat-card">
+                            <div class="feat-icon g"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#34D399" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+                            <div class="feat-title en">Root daemon, no VPN slot</div>
+                            <div class="feat-title vi">Daemon root, không chiếm VPN</div>
+                            <div class="feat-desc en">On rooted devices Xray runs as a system daemon that the low-memory killer leaves alone. It does not use the Android VPN slot, so there is no key icon in the status bar and no clash with per-app VPNs.</div>
+                            <div class="feat-desc vi">Trên máy đã root, Xray chạy như daemon hệ thống mà trình dọn bộ nhớ không đụng tới. Không chiếm slot VPN của Android nên không có biểu tượng chìa khóa và không xung đột với VPN theo ứng dụng.</div>
+                        </div>
+                        <div class="feat-card">
+                            <div class="feat-icon b"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#93C5FD" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg></div>
+                            <div class="feat-title en">System-wide coverage</div>
                             <div class="feat-title vi">Phủ toàn bộ thiết bị</div>
-                            <div class="feat-desc en">Every app on your phone goes through the proxy automatically — no extra setup per app. Devices connected via hotspot are covered too.</div>
-                            <div class="feat-desc vi">Mọi ứng dụng trên điện thoại đều đi qua proxy tự động — không cần cài thêm gì. Thiết bị kết nối hotspot cũng được bảo vệ theo.</div>
+                            <div class="feat-desc en">Apps go through the proxy automatically, with no per-app setup. Root mode intercepts at the Netfilter layer, which also reaches system UIDs that a normal VPN cannot. You can exclude individual apps.</div>
+                            <div class="feat-desc vi">Ứng dụng tự động đi qua proxy, không cần cài riêng từng app. Chế độ Root chặn ở tầng Netfilter nên cả UID hệ thống mà VPN thường không với tới cũng được phủ. Có thể loại trừ từng ứng dụng.</div>
                         </div>
                         <div class="feat-card">
-                            <div class="feat-icon g">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#34D399" stroke-width="2">
-                                    <rect x="3" y="3" width="7" height="7"/>
-                                    <rect x="14" y="3" width="7" height="7"/>
-                                    <rect x="3" y="14" width="7" height="7"/>
-                                    <path d="M14 17h7M17 14v7"/>
-                                </svg>
-                            </div>
-                            <div class="feat-title en">Server Manager</div>
+                            <div class="feat-icon o"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FCA5A5" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></div>
+                            <div class="feat-title en">Server manager</div>
                             <div class="feat-title vi">Quản lý máy chủ</div>
-                            <div class="feat-desc en">Paste a subscription link and your server list updates instantly. Duplicate servers are detected and removed automatically.</div>
-                            <div class="feat-desc vi">Dán link subscription vào là danh sách máy chủ tự cập nhật. Server trùng lặp được tự động phát hiện và loại bỏ.</div>
+                            <div class="feat-desc en">Paste subscription URLs, raw configs or mixed text and the servers are imported. Group them into categories and refresh subscriptions with one tap.</div>
+                            <div class="feat-desc vi">Dán link subscription, cấu hình thô hoặc văn bản hỗn hợp là máy chủ được nhập vào. Gom vào danh mục và cập nhật subscription chỉ với một chạm.</div>
                         </div>
                         <div class="feat-card">
-                            <div class="feat-icon b">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#93C5FD" stroke-width="2">
-                                    <polyline points="16 18 22 12 16 6"/>
-                                    <polyline points="8 6 2 12 8 18"/>
-                                </svg>
-                            </div>
-                            <div class="feat-title en">Powered by Xray Core</div>
-                            <div class="feat-title vi">Chạy trên nhân Xray</div>
-                            <div class="feat-desc en">Just paste your server link — Magic V2Ray converts it into a working config automatically. Supports every major proxy format.</div>
-                            <div class="feat-desc vi">Chỉ cần dán link server — Magic V2Ray tự chuyển thành cấu hình hoạt động được. Hỗ trợ mọi định dạng proxy phổ biến.</div>
+                            <div class="feat-icon v"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A78BFA" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+                            <div class="feat-title en">Powered by Xray-core</div>
+                            <div class="feat-title vi">Chạy trên nhân Xray-core</div>
+                            <div class="feat-desc en">Your server link is converted into a working Xray config automatically, for every protocol listed below.</div>
+                            <div class="feat-desc vi">Link máy chủ được tự động chuyển thành cấu hình Xray hoạt động được, cho mọi giao thức bên dưới.</div>
                         </div>
                         <div class="feat-card">
-                            <div class="feat-icon o">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FCA5A5" stroke-width="2">
-                                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                                </svg>
-                            </div>
-                            <div class="feat-title en">Auto Network Switching</div>
-                            <div class="feat-title vi">Tự chuyển mạng</div>
-                            <div class="feat-desc en">Switches seamlessly between Wi-Fi and mobile data without dropping your proxy connection. Hotspot toggling is handled automatically too.</div>
-                            <div class="feat-desc vi">Chuyển liền mạch giữa Wi-Fi và dữ liệu di động mà không mất kết nối proxy. Bật tắt hotspot cũng được xử lý tự động.</div>
+                            <div class="feat-icon g"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#34D399" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+                            <div class="feat-title en">Seamless network switching</div>
+                            <div class="feat-title vi">Chuyển mạng liền mạch</div>
+                            <div class="feat-desc en">In Root mode the service listens to kernel network events, so Wi-Fi and mobile data handovers reconnect right away.</div>
+                            <div class="feat-desc vi">Ở chế độ Root, dịch vụ lắng nghe sự kiện mạng của nhân nên khi đổi giữa Wi-Fi và dữ liệu di động sẽ kết nối lại ngay.</div>
                         </div>
                         <div class="feat-card">
-                            <div class="feat-icon v">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A78BFA" stroke-width="2">
-                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                                </svg>
-                            </div>
-                            <div class="feat-title en">Safe & Hidden VPN</div>
-                            <div class="feat-title vi">An toàn & VPN ẩn thân</div>
-                            <div class="feat-desc en">Operates seamlessly at the kernel level, completely invisible to the OS and aggressive system task killers. Enjoy rock-solid privacy with military-grade encryption that never drops or leaks your real IP.</div>
-                            <div class="feat-desc vi">Hoạt động mượt mà ở cấp độ nhân (Kernel), hoàn toàn ẩn mình trước hệ điều hành và các trình dọn RAM hệ thống. Tận hưởng sự riêng tư tuyệt đối với mã hóa cấp quân đội, không lo gián đoạn hay rò rỉ IP thật.</div>
+                            <div class="feat-icon b"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#93C5FD" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/></svg></div>
+                            <div class="feat-title en">Hotspot sharing</div>
+                            <div class="feat-title vi">Chia sẻ qua hotspot</div>
+                            <div class="feat-desc en">Share the proxied connection with laptops, consoles and other phones over Wi-Fi hotspot or USB tethering, including IPv6. Without root, Shizuku enables this on Android 13+.</div>
+                            <div class="feat-desc vi">Chia sẻ kết nối đã qua proxy cho laptop, máy console và điện thoại khác qua hotspot Wi-Fi hoặc USB tethering, gồm cả IPv6. Không root thì dùng Shizuku (Android 13+).</div>
                         </div>
                         <div class="feat-card">
-                            <div class="feat-icon g">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#34D399" stroke-width="2">
-                                    <circle cx="12" cy="12" r="10"/>
-                                    <line x1="2" y1="12" x2="22" y2="12"/>
-                                    <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
-                                </svg>
-                            </div>
-                            <div class="feat-title en">Clean Web UI</div>
-                            <div class="feat-title vi">Giao diện Web gọn gàng</div>
-                            <div class="feat-desc en">A clean, modern control panel that opens right in your browser. Available in both English and Vietnamese.</div>
-                            <div class="feat-desc vi">Trang quản lý hiện đại mở ngay trong trình duyệt. Hỗ trợ cả Tiếng Anh và Tiếng Việt.</div>
+                            <div class="feat-icon o"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FCD34D" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>
+                            <div class="feat-title en">Quick tile and clean UI</div>
+                            <div class="feat-title vi">Ô cài đặt nhanh và giao diện gọn</div>
+                            <div class="feat-desc en">Toggle the proxy from the Quick Settings tile (long-press opens the app). The built-in control panel is available in English and Vietnamese.</div>
+                            <div class="feat-desc vi">Bật tắt proxy ngay từ ô Cài đặt nhanh (nhấn giữ để mở app). Bảng điều khiển tích hợp có Tiếng Anh và Tiếng Việt.</div>
                         </div>
                     </div>
                 </div>
@@ -216,8 +246,8 @@
                         </div>
                         <div class="proto-card">
                             <div class="proto-name" style="color:#34D399">VLESS</div>
-                            <div class="proto-desc en">Lightweight & fast</div>
-                            <div class="proto-desc vi">Nhẹ & nhanh</div>
+                            <div class="proto-desc en">Lightweight &amp; fast</div>
+                            <div class="proto-desc vi">Nhẹ &amp; nhanh</div>
                         </div>
                         <div class="proto-card">
                             <div class="proto-name" style="color:#93C5FD">Trojan</div>
@@ -252,44 +282,53 @@
                     </div>
                 </div>
                 <!-- INSTALL -->
-                <div class="section" id="install">
+                <div class="section install-section" id="install">
                     <div class="section-label en">Getting Started</div>
                     <div class="section-label vi">Bắt đầu sử dụng</div>
-                    <h2 class="section-title en">Install in 3 steps</h2>
-                    <h2 class="section-title vi">Cài đặt trong 3 bước</h2>
-                    <div class="install-card">
+                    <h2 class="section-title en">Install the app</h2>
+                    <h2 class="section-title vi">Cài đặt ứng dụng</h2>
+                    <div class="install-card install-track">
                         <div class="install-steps">
+                            <div class="install-track-title"><span class="install-badge">Non-Root</span><span class="en">No root needed</span><span class="vi">Không cần root</span></div>
                             <div class="step-row">
                                 <div class="step-num">1</div>
-                                <div class="step-txt en"><strong>Download</strong> the latest <code style="font-size:12px;font-family:var(--mono);color:var(--violet-l)">.zip</code> release from the GitHub releases page.</div>
-                                <div class="step-txt vi"><strong>Tải xuống</strong> bản release <code style="font-size:12px;font-family:var(--mono);color:var(--violet-l)">.zip</code> mới nhất từ trang GitHub releases.</div>
+                                <div class="step-txt en"><strong>Download</strong> <code>magic_v2ray-*-arm64-v8a.apk</code> (or <code>-x86_64.apk</code>) from the GitHub releases page and install it.</div>
+                                <div class="step-txt vi"><strong>Tải</strong> <code>magic_v2ray-*-arm64-v8a.apk</code> (hoặc <code>-x86_64.apk</code>) từ trang GitHub releases rồi cài đặt.</div>
                             </div>
                             <div class="step-row">
                                 <div class="step-num">2</div>
-                                <div class="step-txt en"><strong>Flash</strong> the module via Magisk, KernelSU or APatch manager, then reboot your device.</div>
-                                <div class="step-txt vi"><strong>Flash</strong> module qua ứng dụng Magisk, KernelSU hoặc APatch, sau đó khởi động lại thiết bị.</div>
+                                <div class="step-txt en"><strong>Open</strong> the app, choose <strong>Non-Root (VpnService) Mode</strong> and grant the VPN permission.</div>
+                                <div class="step-txt vi"><strong>Mở</strong> ứng dụng, chọn <strong>Chế độ Non-Root (VpnService)</strong> và cấp quyền VPN.</div>
                             </div>
                             <div class="step-row" style="margin-bottom:0">
                                 <div class="step-num">3</div>
-                                <div class="step-txt en"><strong>Open</strong> the web UI via the Action button in your <code style="font-size:12px;font-family:var(--mono);color:var(--violet-l)">Magisk / KernelSU / APatch</code> app to start managing your proxies.</div>
-                                <div class="step-txt vi"><strong>Mở</strong> giao diện web bằng nút Action trong ứng dụng <code style="font-size:12px;font-family:var(--mono);color:var(--violet-l)">Magisk / KernelSU / APatch</code> để bắt đầu quản lý proxy.</div>
+                                <div class="step-txt en"><strong>Import</strong> a server link or subscription, pick a server and start the connection.</div>
+                                <div class="step-txt vi"><strong>Nhập</strong> link máy chủ hoặc subscription, chọn một máy chủ rồi bắt đầu kết nối.</div>
                             </div>
-                        </div>
-                        <div>
-                            <div class="install-badge">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="9 11 12 14 22 4"/>
-                                    <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
-                                </svg>
-                                <span class="en">Magisk &amp; KernelSU &amp; APatch ready</span>
-                                <span class="vi">Hỗ trợ Magisk &amp; KernelSU &amp; APatch</span>
-                            </div>
-                            <p style="font-size:12px;color:var(--txt3);margin-top:12px;font-family:var(--mono)">
-                                <span class="en">Requires Android with root</span>
-                                <span class="vi">Yêu cầu Android đã root</span>
-                            </p>
                         </div>
                     </div>
+                    <div class="install-card install-track">
+                        <div class="install-steps">
+                            <div class="install-track-title"><span class="install-badge">Root</span><span class="en">Magisk / KernelSU / APatch</span><span class="vi">Magisk / KernelSU / APatch</span></div>
+                            <div class="step-row">
+                                <div class="step-num">1</div>
+                                <div class="step-txt en"><strong>Option A, module + app:</strong> rename <code>magic_v2ray-*.apk</code> to <code>.zip</code> and flash it in Magisk / KernelSU / APatch (Modules → Install from storage). It installs the background module and the app.</div>
+                                <div class="step-txt vi"><strong>Cách A, module + app:</strong> đổi tên <code>magic_v2ray-*.apk</code> thành <code>.zip</code> rồi flash trong Magisk / KernelSU / APatch (Modules → Install from storage). Việc này cài cả module chạy nền lẫn ứng dụng.</div>
+                            </div>
+                            <div class="step-row">
+                                <div class="step-num">2</div>
+                                <div class="step-txt en"><strong>Option B, plain APK:</strong> install the APK, open it and grant root. The app sets up the daemon in <code>/data/adb/modules/magic_v2ray</code> and keeps your settings in <code>/data/adb/magic_v2ray</code>.</div>
+                                <div class="step-txt vi"><strong>Cách B, cài APK thường:</strong> cài APK, mở app và cấp quyền root. Ứng dụng tự thiết lập daemon trong <code>/data/adb/modules/magic_v2ray</code> và giữ cài đặt của bạn ở <code>/data/adb/magic_v2ray</code>.</div>
+                            </div>
+                            <div class="step-row" style="margin-bottom:0">
+                                <div class="step-num">3</div>
+                                <div class="step-txt en"><strong>Reboot</strong> or just open the app, then start the connection. The module's <strong>Action</strong> button also launches the app, installing <code>app.apk</code> if it is missing.</div>
+                                <div class="step-txt vi"><strong>Khởi động lại</strong> hoặc mở thẳng ứng dụng, rồi bắt đầu kết nối. Nút <strong>Action</strong> của module cũng mở ứng dụng và tự cài <code>app.apk</code> nếu chưa có.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="install-note en">Releases are built for arm64-v8a and x86_64. Each APK can also be renamed to <code>.zip</code> and used as a module installer.</p>
+                    <p class="install-note vi">Bản phát hành có cho arm64-v8a và x86_64. Mỗi APK cũng có thể đổi tên thành <code>.zip</code> để dùng làm bộ cài module.</p>
                 </div>
             </div>
             <!-- /wrap -->
@@ -316,6 +355,7 @@
 
             function setLang(lang) {
                 document.getElementById('root').dataset.lang = lang;
+                document.documentElement.lang = lang;
                 document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
                 const targetBtn = document.querySelector(`.lang-btn[onclick="setLang('${lang}')"]`);
                 if (targetBtn) targetBtn.classList.add('active');
@@ -329,11 +369,7 @@
                     return;
                 }
                 const browserLang = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
-                if (browserLang.startsWith('vi')) {
-                    setLang('vi');
-                } else {
-                    setLang('en');
-                }
+                setLang(browserLang.startsWith('vi') ? 'vi' : 'en');
             }
 
             document.addEventListener('DOMContentLoaded', autoDetectLanguage);
