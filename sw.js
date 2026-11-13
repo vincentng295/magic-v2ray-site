@@ -1,4 +1,4 @@
-const CACHE_NAME = 'magic-v2ray-v2.2-r2';
+const CACHE_NAME = 'magic-v2ray-v2.3-r1';
 
 // Danh sách các file cốt lõi cần cache để ứng dụng chạy được offline
 const ASSETS_TO_CACHE = [
