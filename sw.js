@@ -1,4 +1,4 @@
-const CACHE_NAME = 'magic-v2ray-v2.2';
+const CACHE_NAME = 'magic-v2ray-v2.2-r2';
 
 // Danh sách các file cốt lõi cần cache để ứng dụng chạy được offline
 const ASSETS_TO_CACHE = [
@@ -36,6 +36,11 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+    // Luôn lấy update.json từ mạng, không dùng cache
+    if (new URL(event.request.url).pathname === '/update.json') {
+        event.respondWith(fetch(event.request));
+        return;
+    }
     event.respondWith(
         caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => {
             if (cachedResponse) {
