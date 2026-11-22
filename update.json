@@ -1,10 +1,10 @@
 {
-    "version": "v3.3.2",
-    "versionCode": 205,
-    "zipUrl": "https://github.com/vincentng295/Magic_V2Ray/releases/download/v3.3.2/magic_v2ray-v3.3.2-universal.apk",
+    "version": "v3.4",
+    "versionCode": 211,
+    "zipUrl": "https://github.com/vincentng295/Magic_V2Ray/releases/download/v3.4/magic_v2ray-v3.4-universal.apk",
     "arch" : {
-        "arm64-v8a": "https://github.com/vincentng295/Magic_V2Ray/releases/download/v3.3.2/magic_v2ray-v3.3.2-arm64-v8a.apk",
-        "x86_64": "https://github.com/vincentng295/Magic_V2Ray/releases/download/v3.3.2/magic_v2ray-v3.3.2-x86_64.apk"
+        "arm64-v8a": "https://github.com/vincentng295/Magic_V2Ray/releases/download/v3.4/magic_v2ray-v3.4-arm64-v8a.apk",
+        "x86_64": "https://github.com/vincentng295/Magic_V2Ray/releases/download/v3.4/magic_v2ray-v3.4-x86_64.apk"
     },
-    "changelog": "https://raw.githubusercontent.com/vincentng295/Magic_V2Ray/tags/v3.3.2/CHANGELOG.md"
+    "changelog": "https://raw.githubusercontent.com/vincentng295/Magic_V2Ray/tags/v3.4/CHANGELOG.md"
 }
