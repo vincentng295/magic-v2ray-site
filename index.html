@@ -79,6 +79,12 @@
                             </svg>
                             <span class="en">Download APK</span><span class="vi">Tải APK</span>
                         </a>
+                        <a href="https://github.com/vincentng295/Magic_V2Ray/tree/alpha-build" id="alpha-btn" class="btn-primary" style="background: #F59E0B; border-color: #F59E0B;">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                            </svg>
+                            <span class="en">Download Alpha APK</span><span class="vi">Tải APK Alpha</span>
+                        </a>
                         <button class="btn-ghost" onclick="document.getElementById('install').scrollIntoView({behavior:'smooth'})">
                             <span class="en">Installation guide</span><span class="vi">Hướng dẫn cài đặt</span>
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
@@ -441,8 +447,8 @@
 
             // ===== Popup cập nhật / Update popup =====
             const I18N = {
-                en: {title: 'New update available', version: 'Version', code: 'build', loading: 'Loading changelog...', close: 'Close', dl: 'Download APK', noLog: 'Could not load the changelog.', openLog: 'Open changelog', fail: 'Could not check for updates. Opening the releases page...'},
-                vi: {title: 'Có bản cập nhật mới', version: 'Phiên bản', code: 'build', loading: 'Đang tải nội dung cập nhật...', close: 'Đóng', dl: 'Tải APK', noLog: 'Không tải được nội dung cập nhật.', openLog: 'Mở changelog', fail: 'Không kiểm tra được bản cập nhật. Đang mở trang releases...'}
+                en: {alphaTitle: 'Alpha build (pre-release)', title: 'New update available', version: 'Version', code: 'build', loading: 'Loading changelog...', close: 'Close', dl: 'Download APK', noLog: 'Could not load the changelog.', openLog: 'Open changelog', fail: 'Could not check for updates. Opening the releases page...'},
+                vi: {alphaTitle: 'Bản Alpha (thử nghiệm)', title: 'Có bản cập nhật mới', version: 'Phiên bản', code: 'build', loading: 'Đang tải nội dung cập nhật...', close: 'Đóng', dl: 'Tải APK', noLog: 'Không tải được nội dung cập nhật.', openLog: 'Mở changelog', fail: 'Không kiểm tra được bản cập nhật. Đang mở trang releases...'}
             };
             const curLang = () => (document.documentElement.lang === 'vi' ? 'vi' : 'en');
 
@@ -486,19 +492,25 @@
                 document.body.style.overflow = '';
             }
 
+            const UPDATE_URLS = {
+                stable: '/update.json',
+                alpha: 'https://raw.githubusercontent.com/vincentng295/Magic_V2Ray/refs/heads/alpha-build/update.json'
+            };
+
             async function openUpdate(e) {
                 e.preventDefault();
                 const btn = e.currentTarget;
+                const isAlpha = btn.id === 'alpha-btn';
                 const t = I18N[curLang()];
                 btn.style.opacity = '.6';
                 btn.style.pointerEvents = 'none';
                 try {
-                    const res = await fetch('/update.json', {cache: 'no-store'});
+                    const res = await fetch(isAlpha ? UPDATE_URLS.alpha : UPDATE_URLS.stable, {cache: 'no-store'});
                     if (!res.ok) throw new Error('HTTP ' + res.status);
                     const info = await res.json();
                     if (!info.zipUrl) throw new Error('Missing zipUrl');
 
-                    document.getElementById('upd-title').textContent = t.title;
+                    document.getElementById('upd-title').textContent = isAlpha ? t.alphaTitle : t.title;
                     document.getElementById('upd-ver').textContent =
                         t.version + ' ' + (info.version || '') + (info.versionCode ? ' (' + t.code + ' ' + info.versionCode + ')' : '');
                     document.getElementById('upd-close').textContent = t.close;
@@ -533,6 +545,7 @@
 
             document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('apk-btn').addEventListener('click', openUpdate);
+                document.getElementById('alpha-btn').addEventListener('click', openUpdate);
                 document.getElementById('upd-x').addEventListener('click', closeUpdate);
                 document.getElementById('upd-close').addEventListener('click', closeUpdate);
                 document.getElementById('upd-ov').addEventListener('click', ev => { if (ev.target.id === 'upd-ov') closeUpdate(); });
